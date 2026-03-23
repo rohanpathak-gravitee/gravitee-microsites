@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15,000 AI Agents. One API Layer to Govern Them. | Gravitee for Fannie Mae</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 60px 20px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            font-weight: 300;
+        }
+
+        .prospect-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .prospect-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .prospect-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+
+        .info-item strong {
+            color: #667eea;
+            margin-right: 10px;
+            min-width: 80px;
+        }
+
+        .dashboard-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .dashboard-nav {
+            background: #34495e;
+            padding: 0;
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            color: #bdc3c7;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #2c3e50;
+            color: white;
+            border-bottom-color: #667eea;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .api-list {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .api-list h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .api-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .api-item:last-child {
+            border-bottom: none;
+        }
+
+        .api-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #27ae60;
+        }
+
+        .status-indicator.warning {
+            background: #f39c12;
+        }
+
+        .status-indicator.error {
+            background: #e74c3c;
+        }
+
+        .alerts-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ffeaa7;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-message {
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .alert-time {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .audit-log {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .audit-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .audit-item:last-child {
+            border-bottom: none;
+        }
+
+        .timestamp {
+            color: #6c757d;
+            margin-right: 15px;
+        }
+
+        .action {
+            color: #667eea;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .content-section h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 2rem;
+        }
+
+        .content-section h3 {
+            color: #2c3e50;
+            margin: 25px 0 15px;
+            font-size: 1.3rem;
+        }
+
+        .content-section p {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .tech-item {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .tech-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .fact-check {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .fact-check h4 {
+            color: #155724;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fact-check ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .fact-check li {
+            color: #155724;
+            margin-bottom: 8px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .fact-check li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .cta-section h2 {
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .share-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 12px 25px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .share-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .prospect-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-nav {
+                flex-direction: column;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>15,000 AI Agents. One API Layer to Govern Them.</h1>
+            <p>Fannie Mae's digital transformation demands more than basic API management.<br>See how Gravitee can unify your GenAI agents, DUS Gateway APIs, and massive data ecosystem.</p>
+        </div>
+
+        <!-- Prospect Card -->
+        <div class="prospect-card">
+            <h2>👋 Hi Srini Karlekar</h2>
+            <div class="prospect-info">
+                <div class="info-item">
+                    <strong>Role:</strong>
+                    <span>Senior Director of Technology Architecture & Engineering</span>
+                </div>
+                <div class="info-item">
+                    <strong>Company:</strong>
+                    <span>Fannie Mae</span>
+                </div>
+                <div class="info-item">
+                    <strong>Current Stack:</strong>
+                    <span>Apigee, AWS, Kinesis, Snowflake</span>
+                </div>
+                <div class="info-item">
+                    <strong>Challenge:</strong>
+                    <span>Managing 15,000+ datasets via APIs, GenAI initiatives</span>
+                </div>
+            </div>
+            <p>Based on your API architecture responsibilities and Fannie Mae's massive digital transformation, here's how Gravitee could enhance your current Apigee setup while supporting your growing AI and microservices ecosystem.</p>
+        </div>
+
+        <!-- Dashboard Mock -->
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h2>🏠 Fannie Mae API Management Console</h2>
+                <div class="user-info">
+                    <div class="user-avatar">SK</div>
+                    <span>Srini Karlekar</span>
+                </div>
+            </div>
+            
+            <div class="dashboard-nav">
+                <div class="nav-item active" onclick="showTab('dashboard')">Dashboard</div>
+                <div class="nav-item" onclick="showTab('apis')">APIs</div>
+                <div class="nav-item" onclick="showTab('integrations')">Integrations</div>
+                <div class="nav-item" onclick="showTab('applications')">Applications</div>
+                <div class="nav-item" onclick="showTab('gateways')">Gateways</div>
+                <div class="nav-item" onclick="showTab('kafka')">Kafka Clusters</div>
+                <div class="nav-item" onclick="showTab('audit')">Audit</div>
+                <div class="nav-item" onclick="showTab('alerts')">Alerts</div>
+                <div class="nav-item" onclick="showTab('settings')">Settings</div>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-number">847</span>
+                            <span class="stat-label">Active APIs</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">15.2M</span>
+                            <span class="stat-label">Daily Requests</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">99.97%</span>
+                            <span class="stat-label">Uptime</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">32</span>
+                            <span class="stat-label">GenAI Agents</span>
+                        </div>
+                    </div>
+                    
+                    <div class="alerts-section">
+                        <h3>⚠️ Recent Alerts</h3>
+                        <div class="alert-item">
+                            <span class="alert-message">Property-Valuation-Agent exceeding rate limits</span>
+                            <span class="alert-time">2 mins ago</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-message">DUS Gateway API latency spike detected</span>
+                            <span class="alert-time">15 mins ago</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-message">Credit-Analysis-Agent authentication failure</span>
+                            <span class="alert-time">1 hour ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- APIs Tab -->
+                <div id="apis" class="tab-content hidden">
+                    <div class="api-list">
+                        <h3>Core Financial APIs</h3>
+                        <div class="api-item">
+                            <span class="api-name">DUS Gateway API v2.1</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Healthy</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Property Data API v3.0</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Healthy</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Loan Pricing API v1.8</span>
+                            <div class="api-status">
+                                <div class="status-indicator warning"></div>
+                                <span>Warning</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Underwriting Data API v2.3</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Healthy</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-list">
+                        <h3>AI/ML APIs</h3>
+                        <div class="api-item">
+                            <span class="api-name">Bedrock Model Gateway v1.2</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Healthy</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Risk Assessment ML API v1.5</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Healthy</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Document Processing AI v2.0</span>
+                            <div class="api-status">
+                                <div class="status-indicator warning"></div>
+                                <span>Rate Limited</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integrations Tab -->
+                <div id="integrations" class="tab-content hidden">
+                    <div class="api-list">
+                        <h3>Event Streaming</h3>
+                        <div class="api-item">
+                            <span class="api-name">Amazon Kinesis - Loan Events</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Active</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Kinesis - Property Updates Stream</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-list">
+                        <h3>Data Platforms</h3>
+                        <div class="api-item">
+                            <span class="api-name">Snowflake Data Warehouse</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Connected</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">AWS S3 Data Lake</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Connected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applications Tab -->
+                <div id="applications" class="tab-content hidden">
+                    <div class="api-list">
+                        <h3>Registered Applications</h3>
+                        <div class="api-item">
+                            <span class="api-name">Lender Portal Application</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>1,247 Users</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Mobile Banking Integration</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Active</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Third-Party Risk Analytics</span>
+                            <div class="api-status">
+                                <div class="status-indicator warning"></div>
+                                <span>Needs Review</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gateways Tab -->
+                <div id="gateways" class="tab-content hidden">
+                    <div class="api-list">
+                        <h3>Gateway Instances</h3>
+                        <div class="api-item">
+                            <span class="api-name">DUS-Gateway-East-1</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Healthy</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">ML-Gateway-West-2</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Healthy</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Partner-API-Gateway</span>
+                            <div class="api-status">
+                                <div class="status-indicator warning"></div>
+                                <span>High Load</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kafka Tab -->
+                <div id="kafka" class="tab-content hidden">
+                    <div class="api-list">
+                        <h3>Kinesis Streams</h3>
+                        <div class="api-item">
+                            <span class="api-name">loan-application-events</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Processing</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">property-valuation-updates</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Processing</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">credit-decision-stream</span>
+                            <div class="api-status">
+                                <div class="status-indicator warning"></div>
+                                <span>Backlog</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Tab -->
+                <div id="audit" class="tab-content hidden">
+                    <div class="audit-log">
+                        <div class="audit-item">
+                            <span class="timestamp">2024-01-15 14:23:12</span>
+                            <span class="action">LOGIN</span>
+                            <span>Property-Valuation-Agent authenticated via Bedrock</span>
+                        </div>
+                        <div class="audit-item">
+                            <span class="timestamp">2024-01-15 14:22:45</span>
+                            <span class="action">API_CALL</span>
+                            <span>DUS Gateway API accessed by lender portal</span>
+                        </div>
+                        <div class="audit-item">
+                            <span class="timestamp">2024-01-15 14:21:33</span>
+                            <span class="action">RATE_LIMIT</span>
+                            <span>Credit-Analysis-Agent hit rate limit (1000/hour)</span>
+                        </div>
+                        <div class="audit-item">
+                            <span class="timestamp">2024-01-15 14:20:11</span>
+                            <span class="action">CONFIG</span>
+                            <span>ML Gateway scaling policy updated</span>
+                        </div>
+                        <div class="audit-item">
+                            <span class="timestamp">2024-01-15 14:19:07</span>
+                            <span class="action">DEPLOY</span>
+                            <span>Loan Pricing API v1.8.1 deployed to production</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerts Tab -->
+                <div id="alerts" class="tab-content hidden">
+                    <div class="alerts-section">
+                        <h3>Active Alerts</h3>
+                        <div class="alert-item">
+                            <span class="alert-message">🔥 Property-Valuation-Agent exceeding 95% rate limit</span>
+                            <span class="alert-time">2 mins ago</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-message">⚠️ DUS Gateway API response time > 2s</span>
+                            <span class="alert-time">15 mins ago</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-message">🔒 Credit-Analysis-Agent failed auth 3x</span>
+                            <span class="alert-time">1 hour ago</span>
+                        </div>
+                        <div class="alert-item">
+                            <span class="alert-message">📊 Kinesis shard capacity at 85%</span>
+                            <span class="alert-time">2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings" class="tab-content hidden">
+                    <div class="api-list">
+                        <h3>Platform Configuration</h3>
+                        <div class="api-item">
+                            <span class="api-name">Global Rate Limiting</span>
+                            <div class="api-status">
+                                <span>1000 req/min per agent</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">AWS Region Failover</span>
+                            <div class="api-status">
+                                <div class="status-indicator"></div>
+                                <span>Enabled</span>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="api-name">Bedrock Model Access</span>
+                            <div class="api-status">
+                                <span>Claude-3, GPT-4 Approved</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        <div class="content-section">
+            <h2>The Challenge: When Basic API Management Meets Enterprise AI Scale</h2>
+            
+            <p>Fannie Mae's digital transformation is unprecedented in the mortgage industry. With 15,000+ datasets, mandatory DUS Gateway API requirements, and an expanding ecosystem of GenAI agents, your current Apigee setup—while solid—is facing new challenges that require more sophisticated governance and lifecycle management.</p>
+
+            <h3>Your Current Tech Reality</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h4>API Gateway</h4>
+                    <p>Apigee for Property Data APIs</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Event Streaming</h4>
+                    <p>Amazon Kinesis</p>
+                </div>
+                <div class="tech-item">
+                    <h4>Cloud Infrastructure</h4>
+                    <p>AWS (primary), Snowflake on AWS</p>
+                </div>
+                <div class="tech-item">
+                    <h4>AI/ML Platform</h4>
+                    <p>AWS ML services, Amazon Bedrock</p>
+                </div>
+            </div>
+
+            <p>The complexity you're managing is staggering: hundreds of APIs serving everything from loan pricing to property valuations, GenAI agents processing mortgage documents, and strict compliance requirements that make governance non-negotiable.</p>
+
+            <div class="fact-check">
+                <h4>🎯 Fact-Check: Fannie Mae Intel</h4>
+                <ul>
+                    <li>Record $74 billion multifamily financing volume in 2025</li>
+                    <li>Mandatory DUS Gateway API usage for lenders now enforced</li>
+                    <li>Active hiring for Principal Engineer - Exchange Platform (APIs, Files, AI protocols)</li>
+                    <li>Lead GenAI Agent Developer position indicates major AI API expansion</li>
+                    <li>New housing goals for 2025-2027 will drive API traffic growth</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>The Gravitee Advantage: Beyond Basic API Management</h2>
+            
+            <p>While Apigee handles your current API gateway needs, Gravitee offers the comprehensive API lifecycle management platform that can scale with Fannie Mae's digital transformation ambitions.</p>
+
+            <h3>Why this feels familiar...</h3>
+            <p>Your background in enterprise technology architecture means you've likely seen this pattern before—established API management becoming the bottleneck as AI and microservices proliferate. The need for more sophisticated governance, better analytics, and unified management across your expanding digital ecosystem.</p>
+
+            <h3>What Gravitee brings to your AWS + Apigee environment:</h3>
+            
+            <p><strong>🔄 Seamless Integration:</strong> Gravitee can work alongside your existing Apigee infrastructure, gradually taking over more sophisticated use cases while your current APIs continue running.</p>
+            
+            <p><strong>🤖 AI-Native API Management:</strong> Purpose-built capabilities for managing GenAI agents, ML model APIs, and the unique governance challenges of AI-driven applications—exactly what your expanding Bedrock initiatives need.</p>
+            
+            <p><strong>📊 Advanced Analytics & Observability:</strong> Deep insights into API performance across your entire ecosystem, from DUS Gateway APIs to your newest AI agents, with correlation across AWS services.</p>
+            
+            <p><strong>🏛️ Enterprise Governance:</strong> The compliance and audit capabilities required for a government-sponsored enterprise, with policy enforcement that scales across thousands of APIs and datasets.</p>
+            
+            <p><strong>🚀 Event-Driven Architecture:</strong> Native integration with your Kinesis streams and event-driven patterns, supporting the real-time data flows that power modern mortgage processing.</p>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Ready to see how this could work for Fannie Mae?</h2>
+            <p>Let's discuss how Gravitee can complement your existing infrastructure while solving the unique challenges of managing APIs at your scale.</p>
+            
+            <div class="cta-buttons">
+                <a href="mailto:sales@gravitee.io?subject=Fannie Mae API Management Discussion&body=Hi, I'd like to discuss how Gravitee could help with our API management challenges at scale." class="btn btn-primary">Schedule a Technical Deep-Dive</a>
+                <a href="#" class="btn btn-secondary" onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied! Share with your team.');">Share with Leadership Team</a>
+            </div>
+        </div>
+
+        <!-- Share Section -->
+        <div class="share-section">
+            <h3>Share this analysis</h3>
+            <p>Found this relevant? Share with your team at Fannie Mae:</p>
+            
+            <div class="share-buttons">
+                <a href="mailto:?subject=Gravitee API Management Analysis for Fannie Mae&body=Check out this personalized analysis: " class="share-btn">📧 Email to CTO</a>
+                <a href="mailto:?subject=API Management Strategy Discussion&body=Thought you'd find this Gravitee analysis interesting for our architecture: " class="share-btn">📧 Email to VP Engineering</a>
+                <a href="#" class="share-btn" onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied!')">🔗 Copy Link</a>
+                <a href="https://linkedin.com/sharing/share-offsite/?url=" class="share-btn">💼 Share on LinkedIn</a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
+                This analysis was created by Gravitee's GTM team based on publicly available information about Fannie Mae's technology initiatives and hiring patterns.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            // Add active class to clicked nav item
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
