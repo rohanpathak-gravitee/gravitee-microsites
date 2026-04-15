@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitee.io + SEI: Supercharge Your Cloud Migration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&family=Manrope:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #E8001D;
+            --orange: #FF8C00;
+            --teal: #4DB3BB;
+            --background: #131312;
+            --text-primary: #fff;
+            --text-secondary: #ccc;
+            --font-heading: 'Kanit', sans-serif;
+            --font-body: 'Manrope', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--background);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            font-size: 16px;
+            overflow-x: hidden; /* Hide horizontal scrollbar */
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; }
+        h3 { font-size: 1.5rem; }
+
+        section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(to right, var(--red), var(--orange));
+            color: var(--text-primary);
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .hero h1 { font-size: 3rem; }
+        .hero p { font-size: 1.2rem; }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--teal);
+            color: var(--background);
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            margin-top: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #358a91;
+        }
+
+        .context, .challenge, .solution, .why-now, .social-proof {
+            color: var(--text-secondary);
+        }
+
+        .challenge ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .challenge li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .challenge li::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+        }
+
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .solution-card {
+            background-color: #222;
+            padding: 2rem;
+            border-radius: 5px;
+        }
+
+        .solution-card h3 {
+            color: var(--teal);
+        }
+
+        .architecture {
+            text-align: center;
+        }
+
+        .architecture svg {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+        }
+
+        .social-proof ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .social-proof li {
+            margin-bottom: 1rem;
+        }
+
+        .cta {
+            text-align: center;
+            background-color: #222;
+            padding: 3rem 2rem;
+            border-radius: 5px;
+        }
+
+        /* Scroll Reveal Styles */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.7s cubic-bezier(.25, .46, .45, .94);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+       /* Animation timing */
+        section:nth-child(even) .reveal { transition-delay: 0.1s; }
+        section:nth-child(odd) .reveal { transition-delay: 0.2s; }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .solution-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="hero">
+        <h1 class="reveal">Unlock Agility: Accelerate SEI's Cloud-Native Finance Platform</h1>
+        <p class="reveal">Modernize API access, enhance security, and achieve seamless cloud integration for your financial services.</p>
+        <a href="#cta" class="btn reveal">Get Started</a>
+    </section>
+
+    <section class="context">
+        <h2 class="reveal">The Opportunity</h2>
+        <p class="reveal">With SEI's push towards cloud adoption, as evidenced by recent Cloud Engineer and Cloud Security Architect job postings, managing and securing APIs across hybrid environments becomes critical. Asynchronous API adoption driven by streaming event technologies is also increasingly relevant. A unified API management plane delivers visibility and control over your entire ecosystem.</p>
+    </section>
+
+    <section class="challenge">
+        <h2 class="reveal">The Challenge</h2>
+        <ul class="reveal">
+            <li>Managing API security and governance across diverse cloud environments.</li>
+            <li>Gaining visibility into API performance and usage across your financial platform.</li>
+            <li>Enabling secure access for modern application development and AI integrations.</li>
+        </ul>
+    </section>
+
+    <section class="solution">
+        <h2 class="reveal">The Gravitee.io Solution</h2>
+        <div class="solution-grid reveal">
+            <div class="solution-card">
+                <h3>Unified API Management</h3>
+                <p>Manage and secure APIs across any environment with a single, centralized platform.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Advanced Security & Governance</h3>
+                <p>Enforce consistent security policies and governance across all your APIs.</p>
+            </div>
+            <div class="solution-card">
+                <h3>Developer Portal</h3>
+                <p>Empower developers with a self-service portal for API discovery and consumption, enabling fast AI integration.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="architecture">
+        <h2 class="reveal">Architecture</h2>
+        <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" class="reveal">
+            <rect x="50" y="20" width="100" height="160" fill="#222" stroke="var(--text-secondary)" stroke-width="2" />
+            <text x="100" y="50" font-size="14" font-family="var(--font-body)" fill="var(--text-secondary)" text-anchor="middle">Legacy Systems</text>
+            <text x="100" y="70" font-size="14" font-family="var(--font-body)" fill="var(--text-secondary)" text-anchor="middle">& Cloud Apps</text>
+
+            <rect x="250" y="20" width="100" height="160" fill="#222" stroke="var(--teal)" stroke-width="2" />
+            <text x="300" y="50" font-size="14" font-family="var(--font-body)" fill="var(--teal)" text-anchor="middle">Gravitee.io</text>
+            <text x="300" y="70" font-size="14" font-family="var(--font-body)" fill="var(--teal)" text-anchor="middle">API Management</text>
+
+            <rect x="450" y="20" width="100" height="160" fill="#222" stroke="var(--orange)" stroke-width="2" />
+            <text x="500" y="50" font-size="14" font-family="var(--font-body)" fill="var(--orange)" text-anchor="middle">Secure APIs</text>
+            <text x="500" y="70" font-size="14" font-family="var(--font-body)" fill="var(--orange)" text-anchor="middle">& Insights</text>
+            <text x="500" y="90" font-size="14" font-family="var(--font-body)" fill="var(--orange)" text-anchor="middle">& Developer</text>
+            <text x="500" y="110" font-size="14" font-family="var(--font-body)" fill="var(--orange)" text-anchor="middle">Portal</text>
+
+            <path d="M150 100 L250 100" stroke="var(--text-secondary)" stroke-width="2" />
+            <path d="M350 100 L450 100" stroke="var(--text-secondary)" stroke-width="2" />
+            <text x="200" y="95" font-size="12" font-family="var(--font-body)" fill="var(--text-secondary)" text-anchor="middle">Before Gravitee</text>
+            <text x="400" y="95" font-size="12" font-family="var(--font-body)" fill="var(--text-secondary)" text-anchor="middle">After Gravitee</text>
+        </svg>
+    </section>
+
+    <section class="why-now">
+        <h2 class="reveal">Why Now?</h2>
+        <p class="reveal">SEI's focus on cloud engineering indicates a strategic shift towards modern infrastructure. Gravitee.io ensures seamless API security and management during this transition, preventing roadblocks and accelerating innovation. Additionally, the increasing adoption of AI agents necessitates robust and secure API access controls. </p>
+    </section>
+
+    <section class="social-proof">
+        <h2 class="reveal">Trusted By Leading Financial Institutions</h2>
+        <ul class="reveal">
+            <li>**Major Bank:** Achieved 30% faster API development cycles with Gravitee's self-service portal.</li>
+            <li>**Global Exchange:** Improved API security posture and reduced risk with Gravitee's advanced threat protection.</li>
+        </ul>
+    </section>
+
+    <section class="cta" id="cta">
+        <h2 class="reveal">Ready to Transform Your API Strategy, Sakthikumaran?</h2>
+        <p class="reveal">Let's schedule a brief call to discuss how Gravitee.io can help SEI achieve its cloud migration goals.</p>
+        <a href="{{MICROSITE_URL}}" class="btn reveal">Schedule a Demo</a>
+    </section>
+
+    <script>
+        function revealElements() {
+            const reveals = document.querySelectorAll(".reveal");
+            for (let i = 0; i < reveals.length; i++) {
+                let windowHeight = window.innerHeight;
+                let revealTop = reveals[i].getBoundingClientRect().top;
+                let revealPoint = 50;
+
+                if (revealTop < windowHeight - revealPoint) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+
+        window.addEventListener("scroll", revealElements);
+
+        // Initial check in case elements are already in view on page load
+        revealElements();
+
+        // Hotjar stub
+        (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:0000000,hjsv:6}; // Replace 0000000 with your Hotjar ID
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window,document,'https://static.hotjar.com/c/hotjar/','/.js?sv=');
+
+        window.hj && window.hj('identify', 'SEI', {});
+    </script>
+
+</body>
+</html>
