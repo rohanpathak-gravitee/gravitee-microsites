@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EchoStar Corporation · API Governance · Gravitee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Manrope",sans-serif;background:#131312;color:#F7F1ED;line-height:1.6;overflow-x:hidden}
+:root {
+  --red: #F31013;
+  --red2: #DD1D1F;
+  --orange: #FF8A00;
+  --teal: #4DB3BA;
+  --berry: #C22A3B;
+  --offwhite: #F7F1ED;
+  --warmgrey: #CDC4C1;
+  --muted: #9A9490;
+  --dim: #3A3735;
+  --surface: #1A1210;
+  --surface2: #230E0E;
+  --border: rgba(255,255,255,0.07);
+}
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--red);width:0;z-index:999;transition:width .15s linear}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 48px;display:flex;align-items:center;justify-content:space-between;background:rgba(9,9,11,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:"Kanit",sans-serif;font-weight:800;font-size:17px;letter-spacing:4px;color:var(--red)}
+.nav-label{font-size:12px;color:var(--muted)}
+.nav-tag{font-size:11px;color:var(--teal);background:rgba(77,179,186,.1);border:1px solid rgba(77,179,186,.25);padding:4px 12px;border-radius:20px}
+.hero{min-height:70vh;padding:60px 48px 60px;display:flex;flex-direction:column;justify-content:flex-end;position:relative}
+.hero-bg{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 60% at 70% 10%,rgba(243,16,19,.07) 0%,transparent 60%),radial-gradient(ellipse 50% 70% at 10% 80%,rgba(77,179,186,.04) 0%,transparent 50%)}
+.hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 100% 80% at 50% 0%,black 20%,transparent 70%)}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:22px;height:1px;background:linear-gradient(90deg,#F31013,#FF8A00);display:block}
+.hero h1{font-family:"Kanit",sans-serif;font-size:clamp(44px,7vw,88px);font-weight:800;line-height:.95;color:var(--offwhite);max-width:860px;margin-bottom:28px;position:relative}
+.hero h1 em{font-style:normal;color:var(--red)}
+.hero-sub{font-size:18px;color:var(--muted);max-width:520px;font-weight:300;line-height:1.65;margin-bottom:40px;position:relative}
+.hero-footer{display:flex;align-items:center;gap:32px;position:relative}
+.hero-prep{font-size:13px;color:var(--muted)}
+.hero-prep strong{color:var(--offwhite);font-weight:500}
+.scroll-hint{margin-left:auto;font-size:11px;letter-spacing:2px;color:#5A4A47;text-transform:uppercase;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+/* STATS - no overflow, fixed heights */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stat{padding:32px 28px;border-right:1px solid var(--border);overflow:hidden}
+.stat:last-child{border-right:none}
+.stat-num{font-family:"Kanit",sans-serif;font-size:44px;font-weight:800;line-height:1;color:var(--offwhite);margin-bottom:6px}
+.stat-num .acc{background:linear-gradient(90deg,#F31013,#FF8A00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:13px;color:var(--muted);line-height:1.4}
+/* Sparkline container - CRITICAL: fixed height, overflow hidden */
+.stat-spark-css{margin-top:14px;height:34px;display:flex;align-items:flex-end;gap:3px}
+.ssb{flex:1;border-radius:2px 2px 0 0;opacity:.7;transition:opacity .2s}
+.ssb:hover{opacity:1}
+/* SECTION */
+.section{padding:90px 48px;max-width:1200px;margin:0 auto}
+.sec-title{font-family:"Kanit",sans-serif;font-size:clamp(26px,3.5vw,46px);font-weight:800;line-height:1.1;color:var(--offwhite);margin-bottom:14px}
+.sec-body{font-size:17px;color:var(--muted);max-width:600px;font-weight:300;line-height:1.7}
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);margin-top:52px}
+.card{background:#1A1210;padding:34px;transition:background .2s;position:relative;overflow:hidden}
+.card:hover{background:var(--surface2)}
+.card::before{content:"";position:absolute;top:0;left:0;width:3px;height:0;background:var(--red);transition:height .35s cubic-bezier(.16,1,.3,1)}
+.card:hover::before{height:100%}
+.cnum{font-family:"Kanit",sans-serif;font-size:60px;font-weight:800;color:rgba(243,16,19,.08);line-height:1;margin-bottom:10px}
+.ctitle{font-family:"Kanit",sans-serif;font-size:18px;font-weight:700;color:var(--offwhite);margin-bottom:10px}
+.cbody{font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:14px}
+.cimpact{font-size:13px;color:var(--red);font-style:italic;padding-top:12px;border-top:1px solid rgba(243,16,19,.12)}
+/* FACT CHECK */
+.fact-box{background:#1A1210;border:1px solid var(--border);padding:44px;margin-top:80px}
+.fact-box h3{font-family:"Kanit",sans-serif;font-size:22px;font-weight:700;color:var(--offwhite);margin-bottom:6px}
+.fact-box p{font-size:14px;color:var(--muted);margin-bottom:28px}
+.fact-row{display:flex;align-items:center;gap:14px;padding:13px 16px;background:#131312;border:1px solid transparent;margin-bottom:2px;transition:border-color .2s,background .2s}
+.fact-row:hover{border-color:var(--border)}
+.fact-row.ok{border-color:rgba(77,179,186,.25);background:rgba(77,179,186,.03)}
+.fact-row.no{border-color:rgba(243,16,19,.25);background:rgba(243,16,19,.03)}
+.fact-text{flex:1;font-size:14px;color:var(--offwhite)}
+.fact-src{font-size:11px;color:#5A4A47;white-space:nowrap}
+.fact-btns{display:flex;gap:5px;flex-shrink:0}
+.vbtn{width:30px;height:30px;border-radius:4px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.vbtn:hover{transform:scale(1.1)}
+.vbtn.up.on{border-color:var(--teal);background:rgba(77,179,186,.12)}
+.vbtn.dn.on{border-color:var(--red);background:rgba(243,16,19,.12)}
+.fact-score{display:none;margin-top:18px;padding:14px 16px;background:#230E0E;font-size:14px;color:var(--muted)}
+.fact-score strong{color:var(--teal);font-family:"Kanit",sans-serif;font-size:20px}
+/* DASH SECTION */
+.dash-section{background:#131312;padding:90px 0 0;border-top:1px solid var(--border)}
+.dash-intro{max-width:1200px;margin:0 auto;padding:0 48px 36px}
+.dash-intro h2{font-family:"Kanit",sans-serif;font-size:clamp(26px,3.5vw,46px);font-weight:800;line-height:1.1;color:var(--offwhite);margin-bottom:12px}
+.dash-intro p{font-size:17px;color:var(--muted);font-weight:300;line-height:1.7;margin-bottom:6px}
+.dash-intro small{font-size:12px;color:#5A4A47;font-style:italic}
+.browser{border-top:1px solid rgba(255,255,255,.06)}
+.browser-bar{background:#14141A;padding:9px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.browser-dots{display:flex;gap:6px}
+.browser-dots span{width:11px;height:11px;border-radius:50%;display:block}
+.browser-url{flex:1;background:rgba(255,255,255,.05);border-radius:5px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,.3);font-family:"DM Mono",monospace;margin:0 10px}
+.browser-lbl{font-size:10px;color:rgba(255,255,255,.18);letter-spacing:1px;flex-shrink:0}
+/* GRAVITEE DASHBOARD - scoped, no body/html rules */
+.gdb{display:flex;background:#f5f5f5;color:#1a1a1a;font-family:"Manrope",sans-serif;font-size:13px}
+.gdb-sb{width:172px;flex-shrink:0;background:#1a1a2e;display:flex;flex-direction:column;padding:10px 0}
+.gdb-env-wrap{padding:7px 11px 12px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:7px}
+.gdb-env-lbl{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.gdb-env-val{font-size:12px;color:rgba(255,255,255,.8);font-weight:500}
+.gdb-search{margin:0 9px 9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:5px 9px;font-size:11px;color:rgba(255,255,255,.3)}
+.gdb-ni{display:flex;align-items:center;gap:7px;padding:7px 12px;font-size:12px;color:rgba(255,255,255,.45);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.gdb-ni:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.75)}
+.gdb-ni.on{color:#fff;background:rgba(232,56,13,.12);border-left-color:#e8380d}
+.gdb-badge{background:#e8380d;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:auto}
+.gdb-sep{height:1px;background:rgba(255,255,255,.06);margin:5px 0}
+.gdb-main{flex:1;overflow-y:auto;background:#f5f5f5;display:flex;flex-direction:column;max-height:650px;min-height:600px}
+.gdb-tb{background:#1a1a2e;height:42px;display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0}
+.gdb-tb-logo{width:24px;height:24px;background:#e8380d;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff}
+.gdb-tb-prod{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:4px 9px;font-size:11px;color:rgba(255,255,255,.85)}
+.gdb-tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.gdb-tb-env{font-size:10px;color:rgba(255,255,255,.35)}
+.gdb-tb-env b{color:rgba(255,255,255,.75)}
+.gdb-av{width:26px;height:26px;border-radius:50%;background:#4DB3BA;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.gdb-tabs{background:#fff;border-bottom:1px solid #e8e8e8;display:flex;padding:0 18px;flex-shrink:0}
+.gdb-tab{padding:11px 14px;font-size:12px;color:#666;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s;display:flex;align-items:center;gap:4px}
+.gdb-tab:hover{color:#333}
+.gdb-tab.on{color:#e8380d;border-bottom-color:#e8380d;font-weight:500}
+.gdb-content{padding:16px;flex:1}
+.gdb-pg-title{font-size:18px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
+.gdb-pg-sub{font-size:11px;color:#888;margin-bottom:14px}
+.gdb-tbody{display:none}
+.gdb-tbody.on{display:block}
+.gdb-alert{background:#fff9f0;border:1px solid #fcd34d;border-left:3px solid #ea580c;border-radius:5px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;font-size:12px}
+.gdb-al-title{font-weight:600;color:#9a3412;margin-bottom:2px}
+.gdb-al-desc{color:#78350f;font-size:11px}
+.gdb-al-cta{margin-left:auto;padding:4px 10px;background:#ea580c;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:"Manrope",sans-serif}
+.gdb-tf{background:#fff;border:1px solid #e8e8e8;border-radius:5px;padding:9px 12px;display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.gdb-tf-sel{padding:4px 9px;border:1px solid #ddd;border-radius:4px;font-size:11px;color:#333}
+.gdb-tf-live{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;color:#16a34a;font-weight:500}
+.gdb-tf-dot{width:6px;height:6px;border-radius:50%;background:#16a34a;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.gdb-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.gdb-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.gdb-card{background:#fff;border:1px solid #e8e8e8;border-radius:5px;padding:14px}
+.gdb-ct{font-size:11px;font-weight:600;color:#333;margin-bottom:10px}
+.gdb-n{font-size:24px;font-weight:700;font-family:"DM Mono",monospace;color:#1a1a1a;line-height:1}
+.gdb-nl{font-size:10px;color:#888;margin-top:2px;margin-bottom:8px}
+.gdb-nc{font-size:10px;color:#16a34a;font-weight:500}
+.gdb-pr{display:flex;align-items:center;gap:6px;font-size:10px;margin-bottom:6px}
+.gdb-pl{color:#333;width:110px;flex-shrink:0}
+.gdb-pb{flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
+.gdb-pf{height:100%;border-radius:2px}
+.gdb-pv{color:#888;font-family:"DM Mono",monospace;width:22px;text-align:right}
+/* Chart containers in dashboard - explicit sizes prevent expansion */
+.gdb-ch{position:relative;overflow:hidden}
+.gdb-tcard{background:#fff;border:1px solid #e8e8e8;border-radius:5px;overflow:hidden;margin-bottom:10px}
+.gdb-thead{padding:10px 14px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.gdb-thtitle{font-size:11px;font-weight:600;color:#333}
+.gdb-tnav{font-size:10px;color:#888}
+.gtbl{width:100%;border-collapse:collapse}
+.gtbl th{font-size:9px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.4px;padding:7px 12px;background:#fafafa;border-bottom:1px solid #f0f0f0;text-align:left}
+.gtbl td{padding:9px 12px;font-size:11px;color:#333;border-bottom:1px solid #f7f7f7;vertical-align:middle}
+.gtbl tr:last-child td{border-bottom:none}
+.gtbl tr:hover td{background:#fafafa}
+.gtbl tr.dng td{background:#fff5f5}
+.gb{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600}
+.gb-g{background:#dcfce7;color:#16a34a}
+.gb-b{background:#dbeafe;color:#2563eb}
+.gb-o{background:#fff7ed;color:#ea580c}
+.gb-r{background:#fee2e2;color:#dc2626}
+.gb-gr{background:#f3f4f6;color:#6b7280}
+.gb-p{background:#ede9fe;color:#7c3aed}
+.gaf{display:inline-flex;align-items:center;gap:3px;background:#fee2e2;color:#dc2626;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px}
+.sdot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px}
+.sg{background:#16a34a}.sr{background:#dc2626}.so{background:#ea580c}
+.meth{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;font-family:"DM Mono",monospace}
+.mg{background:#dbeafe;color:#1d4ed8}
+.mp{background:#dcfce7;color:#15803d}
+.mk{background:#ede9fe;color:#7c3aed}
+.gdb-filt{background:#fff;border:1px solid #e8e8e8;border-radius:5px;padding:10px 14px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.gfbtn{padding:4px 9px;border:1px solid #ddd;border-radius:4px;font-size:11px;color:#333;background:#fff;cursor:pointer;font-family:"Manrope",sans-serif}
+.gexport{margin-left:auto;padding:5px 12px;background:#e8380d;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;font-family:"Manrope",sans-serif}
+.gacard{background:#fff;border:1px solid #e8e8e8;border-radius:5px;overflow:hidden;margin-bottom:8px}
+.garow{display:grid;grid-template-columns:80px 1fr auto auto 70px;align-items:start;gap:10px;padding:12px 14px;border-bottom:1px solid #f0f0f0}
+.garow:last-child{border-bottom:none}
+.garow.crit{background:#fff9f9}
+.gaapi{font-family:"DM Mono",monospace;font-size:10px;color:#555}
+.gatime{font-size:10px;color:#888;white-space:nowrap}
+.gabtn{padding:3px 9px;border:none;border-radius:3px;font-size:10px;font-weight:500;cursor:pointer;color:#fff;white-space:nowrap;font-family:"Manrope",sans-serif}
+.gnote{margin-top:8px;padding:12px 14px;background:#f9fafb;border:1px solid #e8e8e8;border-radius:5px;font-size:11px;color:#555;line-height:1.6}
+/* ARCH */
+.arch{margin-top:52px;display:flex;flex-direction:column;gap:2px}
+.arch-row{display:grid;grid-template-columns:170px 1fr 110px;align-items:center;gap:20px;padding:20px 26px;background:#1A1210;border:1px solid var(--border);border-left:3px solid transparent;transition:all .2s}
+.arch-row:hover{background:#230E0E;transform:translateX(3px)}
+.arch-row.rt{border-left-color:var(--teal)}
+.arch-row.rr{border-left-color:var(--red)}
+.arch-row.rd{border-left-color:#5A4A47}
+.an{font-family:"Kanit",sans-serif;font-size:14px;font-weight:700;color:var(--offwhite)}
+.as{font-size:10px;color:var(--muted);margin-top:2px}
+.ad{font-size:13px;color:var(--muted);line-height:1.5}
+.ab{font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 10px;border-radius:3px;text-align:center}
+.ab-t{color:var(--teal);background:rgba(77,179,186,.1);border:1px solid rgba(77,179,186,.2)}
+.ab-r{color:var(--red);background:rgba(243,16,19,.1);border:1px solid rgba(243,16,19,.2)}
+.ab-d{color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border)}
+/* PARALLEL */
+.parallel{display:grid;grid-template-columns:1fr 34px 1fr;margin-top:52px}
+.pc{display:flex;flex-direction:column;gap:1px}
+.ph{padding:14px 20px;font-family:"Kanit",sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.ph.jet{background:#230E0E;color:var(--muted);border-bottom:2px solid var(--dim)}
+.ph.adm{background:rgba(243,16,19,.08);color:var(--red);border-bottom:2px solid var(--red)}
+.pr{padding:14px 20px;font-size:13px;line-height:1.5;border-bottom:1px solid var(--border)}
+.pr.jet{background:#1A1210;color:var(--muted)}
+.pr.adm{background:#1A1210;color:var(--offwhite)}
+.pm{display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding-top:50px}
+.pa{font-size:15px;color:var(--red);opacity:.5}
+/* SHARE */
+.share-box{background:linear-gradient(135deg,#1A1210 0%,rgba(35,14,14,.95) 100%);border:1px solid var(--border);padding:48px;margin-top:80px;position:relative;overflow:hidden}
+.share-box::before{content:"";position:absolute;top:0;right:0;width:220px;height:220px;background:radial-gradient(circle,rgba(77,179,186,.05),transparent 70%);pointer-events:none}
+.sh-title{font-family:"Kanit",sans-serif;font-size:24px;font-weight:800;color:var(--offwhite);margin-bottom:9px}
+.sh-body{font-size:15px;color:var(--muted);max-width:520px;margin-bottom:28px;line-height:1.6}
+.sh-contacts{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.sh-contact{display:flex;align-items:center;gap:14px;padding:14px 18px;background:#131312;border:1px solid var(--border);cursor:pointer;transition:border-color .2s}
+.sh-contact:hover{border-color:rgba(77,179,186,.3)}
+.sh-av{width:38px;height:38px;border-radius:4px;background:#230E0E;display:flex;align-items:center;justify-content:center;font-family:"Kanit",sans-serif;font-size:12px;font-weight:700;color:var(--teal);flex-shrink:0}
+.sh-info{flex:1}
+.sh-name{font-weight:500;color:var(--offwhite);font-size:14px}
+.sh-title{font-size:11px;color:var(--muted)}
+.sh-ck{width:19px;height:19px;border-radius:3px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:10px;color:transparent;flex-shrink:0}
+.sh-ck.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.sh-msg{background:#230E0E;border:1px solid var(--border);border-left:3px solid var(--teal);padding:16px 18px;font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:18px;font-style:italic}
+#sh-s1{}
+#sh-s2{display:none}
+.sh-qi{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#131312;border:1px solid var(--border);margin-bottom:5px;font-size:12px}
+.sh-qi-av{width:24px;height:24px;border-radius:3px;background:#230E0E;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--teal);flex-shrink:0}
+.sh-qi-name{color:var(--offwhite);font-weight:500;flex:1}
+.sh-qi-st{font-size:11px;color:#5A4A47}
+.sh-qi-st.sent{color:var(--teal)}
+.sh-btns{display:flex;gap:9px;align-items:center;margin-top:14px}
+.btn-p{display:inline-flex;align-items:center;gap:7px;padding:13px 26px;background:linear-gradient(135deg,#F31013,#FF8A00);color:#F7F1ED;font-family:"Kanit",sans-serif;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s}
+.btn-p:hover{background:linear-gradient(135deg,#DD1D1F,#e07800);transform:translateY(-1px)}
+.btn-g{padding:13px 18px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:"Kanit",sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:border-color .2s}
+.btn-g:hover{border-color:rgba(255,255,255,.2)}
+.sh-note{font-size:11px;color:#5A4A47;margin-top:9px;line-height:1.5}
+.sh-done{display:none;align-items:center;gap:9px;padding:13px 16px;background:rgba(77,179,186,.08);border:1px solid rgba(77,179,186,.25);color:var(--teal);font-size:13px;font-weight:500;margin-top:12px}
+/* CLOSING */
+.closing{text-align:center;padding:110px 48px;max-width:740px;margin:0 auto}
+.closing h2{font-family:"Kanit",sans-serif;font-size:clamp(32px,5vw,58px);font-weight:800;line-height:1.05;color:var(--offwhite);margin-bottom:26px}
+.closing h2 em{font-style:normal;color:var(--red)}
+.closing p{font-size:17px;color:var(--muted);font-weight:300;line-height:1.7;margin-bottom:44px}
+.closing-url{font-family:"Kanit",sans-serif;font-size:12px;letter-spacing:3px;color:#5A4A47;text-transform:uppercase;margin-top:56px}
+footer{border-top:1px solid var(--border);padding:26px 48px;display:flex;justify-content:space-between;font-size:12px;color:#5A4A47}
+#toast{position:fixed;bottom:26px;right:26px;background:#230E0E;border:1px solid rgba(77,179,186,.4);color:var(--offwhite);padding:13px 18px;font-size:13px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.16,1,.3,1);max-width:290px;pointer-events:none}
+#toast.show{transform:translateY(0);opacity:1}
+.r{opacity:0;transform:translateY(18px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
+.r.d1{transition-delay:.1s}.r.d2{transition-delay:.2s}.r.d3{transition-delay:.3s}
+.r.vis{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<nav><div class="nav-logo">GRAVITEE</div><div class="nav-label">Prepared for Rob Prince · EchoStar Corporation</div><div class="nav-tag">CONFIDENTIAL</div></nav>
+
+<section class="hero">
+  <div class="hero-bg"></div><div class="hero-grid"></div>
+  <div class="eyebrow r">EchoStar Corporation · Senior Software Manager · APRIL 2026</div>
+  <h1 class="r d1">70 Transponders in Orbit.<br><em>One Control Plane to Secure Them All.</em></h1>
+  <p class="hero-sub r d2">Control your Satellite APIs</p>
+  <div class="hero-footer r d3">
+    <div class="hero-prep">Prepared for <strong>Gregory Pandolfo</strong>, Senior Software Manager</div>
+    <div class="scroll-hint">Scroll to explore ↓</div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num"><span class="acc">1.7</span></div><div class="stat-label">Billion Revenue (USD)</div><div class="stat-spark-css"><div class="ssb" style="height:40%;background:#4DB3BA"></div><div class="ssb" style="height:55%;background:#4DB3BA"></div><div class="ssb" style="height:50%;background:#4DB3BA"></div><div class="ssb" style="height:65%;background:#4DB3BA"></div><div class="ssb" style="height:70%;background:#4DB3BA"></div><div class="ssb" style="height:60%;background:#4DB3BA"></div><div class="ssb" style="height:88%;background:#4DB3BA"></div></div></div>
+  <div class="stat"><div class="stat-num"><span class="acc">1,800</span></div><div class="stat-label">Employees</div><div class="stat-spark-css"><div class="ssb" style="height:70%;background:#FF8A00"></div><div class="ssb" style="height:72%;background:#FF8A00"></div><div class="ssb" style="height:75%;background:#FF8A00"></div><div class="ssb" style="height:78%;background:#FF8A00"></div><div class="ssb" style="height:80%;background:#FF8A00"></div><div class="ssb" style="height:82%;background:#FF8A00"></div><div class="ssb" style="height:80%;background:#FF8A00"></div></div></div>
+  <div class="stat"><div class="stat-num"><span class="acc">30+</span></div><div class="stat-label">Years in Satellite Communications</div><div class="stat-spark-css"><div class="ssb" style="height:60%;background:#4DB3BA"></div><div class="ssb" style="height:65%;background:#4DB3BA"></div><div class="ssb" style="height:68%;background:#4DB3BA"></div><div class="ssb" style="height:70%;background:#4DB3BA"></div><div class="ssb" style="height:72%;background:#4DB3BA"></div><div class="ssb" style="height:75%;background:#4DB3BA"></div><div class="ssb" style="height:75%;background:#4DB3BA"></div></div></div>
+  <div class="stat"><div class="stat-num"><span class="acc">70</span></div><div class="stat-label">Transponders in orbit</div><div class="stat-spark-css"><div class="ssb" style="height:55%;background:#F31013"></div><div class="ssb" style="height:60%;background:#F31013"></div><div class="ssb" style="height:65%;background:#F31013"></div><div class="ssb" style="height:68%;background:#F31013"></div><div class="ssb" style="height:72%;background:#F31013"></div><div class="ssb" style="height:78%;background:#F31013"></div><div class="ssb" style="height:85%;background:#F31013"></div></div></div>
+</div>
+
+<div class="section">
+  <div class="eyebrow r">The challenge</div>
+  <h2 class="sec-title r d1">150 AI Initiatives, Each Calling APIs —<br>Who Governs That Layer?</h2>
+  <p class="sec-body r d2">You've joined an organisation where GenAI adoption is already real and accelerating. The question isn't whether AI agents will call your APIs — they already do.</p>
+  <div class="cards r">
+    <div class="card"><div class="cnum">01</div><div class="ctitle">Regulatory Compliance</div><div class="cbody">The FCC imposes stringent regulations on satellite communications companies, especially regarding data privacy and security. Ensuring all APIs comply with these rules is crucial.</div><div class="cimpact">Avoid fines and maintain operational licenses.</div></div>Every new initiative adds another ungoverned integration point to your estate.</div></div>
+    <div class="card"><div class="cnum">02</div><div class="ctitle">Bandwidth Management</div><div class="cbody">Satellite bandwidth is a limited resource. Optimizing API performance to minimize data transfer is essential for delivering a reliable service.</div><div class="cimpact">Improve customer satisfaction and reduce operational costs.</div></div>
+    <div class="card"><div class="cnum">03</div><div class="ctitle">Geographic Coverage</div><div class="cbody">APIs need to seamlessly handle diverse geographic locations and network conditions, considering factors like latency and intermittent connectivity.</div><div class="cimpact">Ensure consistent service delivery across all coverage areas.</div></div>
+    <div class="card"><div class="cnum">04</div><div class="ctitle">Security Threats</div><div class="cbody">Satellite communication systems are attractive targets for cyberattacks. APIs need robust security measures to protect sensitive data and prevent unauthorized access.</div><div class="cimpact">Prevent data breaches and maintain system integrity.</div></div>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0">
+  <div class="fact-box r">
+    <div class="eyebrow" style="margin-bottom:12px">Verify our research</div>
+    <h3>Is this accurate about EchoStar Corporation?</h3>
+    <p>We've done our homework — let us know if anything is off.</p>
+    <div class="fact-row" data-id="1"><div class="fact-text">EchoStar was founded in 1980</div><div class="fact-src">EchoStar website history section</div><div class="fact-btns"><button class="vbtn up" onclick="vf(1,true,this)">👍</button><button class="vbtn dn" onclick="vf(1,false,this)">👎</button></div></div>
+    <div class="fact-row" data-id="2"><div class="fact-text">EchoStar's subsidiary Hughes Network Systems is a major provider of broadband satellite internet.</div><div class="fact-src">Hughes Network Systems Website</div><div class="fact-btns"><button class="vbtn up" onclick="vf(2,true,this)">👍</button><button class="vbtn dn" onclick="vf(2,false,this)">👎</button></div></div>
+    <div class="fact-row" data-id="3"><div class="fact-text">EchoStar provides satellite services to enterprises and governments</div><div class="fact-src">EchoStar website</div><div class="fact-btns"><button class="vbtn up" onclick="vf(3,true,this)">👍</button><button class="vbtn dn" onclick="vf(3,false,this)">👎</button></div></div>
+    <div class="fact-row" data-id="4"><div class="fact-text">EchoStar operates a fleet of satellites in geostationary orbit.</div><div class="fact-src">EchoStar 2023 Annual Report</div><div class="fact-btns"><button class="vbtn up" onclick="vf(4,true,this)">👍</button><button class="vbtn dn" onclick="vf(4,false,this)">👎</button></div></div>
+    <div class="fact-row" data-id="5"><div class="fact-text">Echostar is regulated by the FCC</div><div class="fact-src">FCC Website</div><div class="fact-btns"><button class="vbtn up" onclick="vf(5,true,this)">👍</button><button class="vbtn dn" onclick="vf(5,false,this)">👎</button></div></div>
+    <div class="fact-score" id="fscore"><strong id="fscore-num">0/0</strong>&nbsp;facts verified — thank you.</div>
+  </div>
+</div>
+<div class="dash-section">
+  <div class="dash-intro">
+    <div class="eyebrow r" style="margin-bottom:12px">Show don't tell</div>
+    <h2 class="r d1">Securing EchoStar's Satellite API Ecosystem</h2>
+    <p class="r d2">EchoStar's satellite-based services rely on a complex network of internal and external APIs. Securing and managing these APIs effectively is critical for maintaining operational efficiency, complying with regulatory requirements, and delivering a seamless customer experience. Gravitee offers a centralized API management platform that enables EchoStar to control access, monitor performance, and enforce security policies across its entire API ecosystem.</p>
+    <small class="r d3">Click through the tabs — Overview, Audit Log, and Active Alerts are all interactive.</small>
+  </div>
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots"><span style="background:#FF5F57"></span><span style="background:#FFBD2E"></span><span style="background:#28C840"></span></div>
+      <div class="browser-url">cloud.gravitee.io/echostar-corporation-prod/dashboard</div>
+      <div class="browser-lbl">CONFIDENTIAL MOCK</div>
+    </div>
+    <div class="gdb">
+      <div class="gdb-sb">
+        <div class="gdb-env-wrap"><div class="gdb-env-lbl">Environment</div><div class="gdb-env-val">echostar-corporation-prod ▾</div></div>
+        <div class="gdb-search">🔍 Search...</div>
+        <div class="gdb-ni on" data-gt="ov">⊞ Dashboard</div>
+        <div class="gdb-ni" data-gt="apis">◎ APIs</div>
+        <div class="gdb-ni" data-gt="int">⟲ Integrations</div>
+        <div class="gdb-ni" data-gt="app">▣ Applications</div>
+        <div class="gdb-ni" data-gt="gw">⬡ Gateways</div>
+        <div class="gdb-ni" data-gt="kfk">⚡ Kafka Clusters</div>
+        <div class="gdb-sep"></div>
+        <div class="gdb-ni" data-gt="au">📋 Audit</div>
+        <div class="gdb-ni" data-gt="ov">📊 Analytics</div>
+        <div class="gdb-ni" data-gt="al">🔔 Alerts <span class="gdb-badge">3</span></div>
+        <div class="gdb-ni" data-gt="settings">⚙ Settings</div>
+      </div>
+      <div class="gdb-main">
+        <div class="gdb-tb">
+          <div class="gdb-tb-logo">G</div>
+          <div class="gdb-tb-prod">⚙️ API Management</div>
+          <div class="gdb-tb-right"><div class="gdb-tb-env">Env: <b>admiral-production-eu</b></div><div class="gdb-av">GP</div></div>
+        </div>
+        <div class="gdb-tabs">
+          <div class="gdb-tab on" id="gtab-ov" data-gt="ov">Overview</div>
+          <div class="gdb-tab" id="gtab-au" data-gt="au">Audit Log</div>
+          <div class="gdb-tab" id="gtab-al" data-gt="al">Active Alerts <span style="background:#e8380d;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:3px">3</span></div>
+        </div>
+        <div class="gdb-content">
+
+          <div class="gdb-tbody on" id="gb-ov">
+            <div class="gdb-pg-title">Platform Overview</div>
+            <div class="gdb-pg-sub">EchoStar Corporation · Production · Last refreshed 2 min ago</div>
+            <div class="gdb-alert"><div style="font-size:16px;flex-shrink:0">⚠️</div><div><div class="gdb-al-title">Agent scope violation — Underwriting Risk Score API</div><div class="gdb-al-desc">agent:claims-resolution-v2 accessed /underwriting/risk-score without authorisation at 03:41 GMT. Access blocked.</div></div><button class="gdb-al-cta">View →</button></div>
+            <div class="gdb-tf"><div class="gdb-tf-sel">Last 7 days ▾</div><div style="font-size:11px;color:#666">↺ Refresh</div><div class="gdb-tf-live"><div class="gdb-tf-dot"></div> Live · 47 APIs</div></div>
+            <div class="gdb-g3">
+              <div class="gdb-card">
+                <div class="gdb-ct">Summary</div>
+                <div class="gdb-n">6</div><div class="gdb-nl">Total APIs</div><div class="gdb-nc">↑ 8 added this month</div>
+                <div style="height:6px"></div>
+                <div class="gdb-n">83</div><div class="gdb-nl">Agent Applications</div><div class="gdb-nc">↑ 12 this week</div>
+                <div style="margin-top:10px;padding-top:9px;border-top:1px solid #f0f0f0">
+                  <div style="font-size:9px;color:#888;margin-bottom:5px">Request volume (7d)</div>
+                  <div class="gdb-ch" style="height:40px"><canvas id="db-spark"></canvas></div>
+                </div>
+              </div>
+              <div class="gdb-card">
+                <div class="gdb-ct">API Lifecycle State</div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px"><span class="gb gb-g">Published: 38</span><span class="gb gb-gr">Deprecated: 4</span><span class="gb gb-b">Draft: 5</span></div>
+                <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px">By domain</div>
+                <div class="gdb-pr"><div class="gdb-pl">Underwriting</div><div class="gdb-pb"><div class="gdb-pf" style="width:55%;background:#2563eb"></div></div><div class="gdb-pv">18</div></div>
+                <div class="gdb-pr"><div class="gdb-pl">Claims</div><div class="gdb-pb"><div class="gdb-pf" style="width:28%;background:#16a34a"></div></div><div class="gdb-pv">9</div></div>
+                <div class="gdb-pr"><div class="gdb-pl">Customer Data</div><div class="gdb-pb"><div class="gdb-pf" style="width:22%;background:#7c3aed"></div></div><div class="gdb-pv">7</div></div>
+                <div class="gdb-pr"><div class="gdb-pl">Kafka Streams</div><div class="gdb-pb"><div class="gdb-pf" style="width:40%;background:#ea580c"></div></div><div class="gdb-pv">13</div></div>
+              </div>
+              <div class="gdb-card">
+                <div class="gdb-ct">API Response Status <span class="gb gb-g" style="float:right">98.4%</span></div>
+                <div class="gdb-pr"><div class="gdb-pl">2xx Success</div><div class="gdb-pb"><div class="gdb-pf" style="width:94%;background:#16a34a"></div></div><div class="gdb-pv">94%</div></div>
+                <div class="gdb-pr"><div class="gdb-pl">4xx Client</div><div class="gdb-pb"><div class="gdb-pf" style="width:4%;background:#f59e0b"></div></div><div class="gdb-pv">4%</div></div>
+                <div class="gdb-pr"><div class="gdb-pl">5xx Error</div><div class="gdb-pb"><div class="gdb-pf" style="width:2%;background:#dc2626"></div></div><div class="gdb-pv">2%</div></div>
+                <div style="font-size:10px;color:#888;padding-top:8px;border-top:1px solid #f0f0f0;margin-top:4px">Avg: <b style="color:#333">142ms</b> · P99: <b style="color:#e8380d">1,840ms</b></div>
+              </div>
+            </div>
+            <div class="gdb-card" style="margin-bottom:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div class="gdb-ct" style="margin:0">Agent API Call Volume — Last 7 Days</div>
+                <div style="display:flex;gap:12px;font-size:9px;color:#888">
+                  <span><span style="display:inline-block;width:10px;height:2px;background:#e8380d;vertical-align:middle;margin-right:3px;border-radius:1px"></span>Calls (M)</span>
+                  <span><span style="display:inline-block;width:7px;height:7px;background:#dc2626;vertical-align:middle;margin-right:3px;transform:rotate(45deg)"></span>Violation</span>
+                </div>
+              </div>
+              <div class="gdb-ch" style="height:90px"><canvas id="db-callvol"></canvas></div>
+            </div>
+            <div class="gdb-g2">
+              <div class="gdb-card"><div class="gdb-ct">Call Distribution by Agent</div><div class="gdb-ch" style="height:150px"><canvas id="db-donut"></canvas></div></div>
+              <div class="gdb-card"><div class="gdb-ct">Response Status Trend (7d)</div><div class="gdb-ch" style="height:150px"><canvas id="db-area"></canvas></div></div>
+            </div>
+            <div class="gdb-tcard">
+              <div class="gdb-thead"><div class="gdb-thtitle">Top APIs by Agent Call Volume</div><div class="gdb-tnav">1–7 of 47</div></div>
+              <table class="gtbl"><thead><tr><th>API</th><th>Type</th><th>Calls (7d)</th><th>Status</th></tr></thead>
+              <tbody>
+<tr><td><b>/satellite-internet/usage</b></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">25000</td><td><span class="sdot sg"></span>Healthy</td></tr>
+<tr><td><b>/satellite-tv/channel-listings</b></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">18000</td><td><span class="sdot sg"></span>Healthy</td></tr>
+<tr><td><b>/mobile-satellite/location-data</b></td><td><span class="meth mk">Kafka</span></td><td style="font-family:'DM Mono',monospace">50000</td><td><span class="sdot sg"></span>Healthy</td></tr>
+<tr><td><b>/enterprise-solutions/bandwidth-allocation</b></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">12000</td><td><span class="sdot sg"></span>Healthy</td></tr>
+<tr><td><b>/satellite-tv/billing-info</b></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">8000</td><td><span class="sdot so"></span>Degraded</td></tr>
+<tr class="dng"><td><b style="color:#dc2626">/satellite-tv/customer-profiles</b> <span class="gaf">⚠ SCOPE VIOLATION</span></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace;color:#dc2626">1 (blocked)</td><td><span class="sdot sr"></span>Alert</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+
+          <div class="gdb-tbody" id="gb-au">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+              <div><div class="gdb-pg-title">Audit Log</div><div class="gdb-pg-sub">All agent and user actions · Federal Communications Commission (FCC)-exportable</div></div>
+              <button class="gexport">↓ Export for Federal Communications Commission (FCC)</button>
+            </div>
+            <div class="gdb-alert"><div style="font-size:14px;flex-shrink:0">🔴</div><div><div class="gdb-al-title">Critical: Unauthorised access by BillingAgent-04</div><div class="gdb-al-desc">Access to /satellite-tv/customer-profiles blocked by gateway OAuth policy.</div></div><button class="gdb-al-cta">View trace →</button></div>
+            <div class="gdb-filt"><button class="gfbtn">Event ▾</button><button class="gfbtn">Type ▾</button><button class="gfbtn">Agent ▾</button><div style="margin-left:auto;font-size:11px;color:#888">📅 Mar 13–20, 2026</div></div>
+            <div class="gdb-tcard">
+              <div class="gdb-thead"><div class="gdb-thtitle">Audit Events</div><div class="gdb-tnav">1–7 of 847,293</div></div>
+              <table class="gtbl"><thead><tr><th>Timestamp</th><th>Agent / User</th><th>Type</th><th>Endpoint</th><th>Event</th><th>Result</th></tr></thead>
+              <tbody>
+<tr class="dng"><td style="font-family:'DM Mono',monospace;font-size:10px;color:#dc2626">2024-10-27 14:35</td><td><b style="color:#dc2626">BillingAgent-04</b></td><td><span class="gb gb-r">AGENT</span></td><td style="font-family:'DM Mono',monospace;font-size:10px">/satellite-tv/customer-profiles</td><td><span class="gaf">⚠ SCOPE_VIOLATION</span></td><td><span class="gb gb-r">BLOCKED</span></td></tr>
+<tr><td style="font-family:'DM Mono',monospace;font-size:10px">2024-10-27 14:30</td><td><b>User-221</b></td><td><span class="gb gb-p">USER</span></td><td style="font-family:'DM Mono',monospace;font-size:10px">/satellite-internet/usage</td><td>GET</td><td><span class="gb gb-g">SUCCESS</span></td></tr>
+<tr><td style="font-family:'DM Mono',monospace;font-size:10px">2024-10-27 14:25</td><td><b>MobileApp-12</b></td><td><span class="gb gb-b">AGENT</span></td><td style="font-family:'DM Mono',monospace;font-size:10px">/mobile-satellite/location-data</td><td>POST</td><td><span class="gb gb-g">SUCCESS</span></td></tr>
+<tr><td style="font-family:'DM Mono',monospace;font-size:10px">2024-10-27 14:20</td><td><b>EnterpriseSystem-01</b></td><td><span class="gb gb-b">AGENT</span></td><td style="font-family:'DM Mono',monospace;font-size:10px">/enterprise-solutions/bandwidth-allocation</td><td>PUT</td><td><span class="gb gb-g">SUCCESS</span></td></tr>
+<tr><td style="font-family:'DM Mono',monospace;font-size:10px">2024-10-27 14:15</td><td><b>User-155</b></td><td><span class="gb gb-p">USER</span></td><td style="font-family:'DM Mono',monospace;font-size:10px">/satellite-tv/channel-listings</td><td>GET</td><td><span class="gb gb-g">SUCCESS</span></td></tr>
+              </tbody></table>
+            </div>
+          </div>
+
+          <div class="gdb-tbody" id="gb-al">
+            <div class="gdb-pg-title">Active Alerts</div>
+            <div class="gdb-pg-sub">3 alerts requiring attention</div>
+            <div class="gacard" style="margin-top:12px">
+              <div class="garow crit"><span class="gb gb-r">CRITICAL</span><div><b>Agent scope violation — unauthorised API access</b><div style="font-size:10px;color:#888;margin-top:2px">BillingAgent-04 accessed /satellite-tv/customer-profiles outside its OAuth scope. Blocked.</div></div><div class="gaapi">BillingAgent-04</div><div class="gatime">Today 14:35</div><button class="gabtn" style="background:#dc2626">Review</button></div>
+              <div class="garow"><span class="gb gb-o">WARNING</span><div><b>API degraded — API degraded — /satellite-tv/billing-info returning 503s</b><div style="font-size:10px;color:#888;margin-top:2px">Error rate 23% above threshold. 6 agents affected.</div></div><div class="gaapi">/satellite-tv/billing-info</div><div class="gatime">Today 03:34</div><button class="gabtn" style="background:#ea580c">Logs</button></div>
+              <div class="garow"><span class="gb gb-o">WARNING</span><div><b>Rate limit approaching — echostar-corporation-agent-v1</b><div style="font-size:10px;color:#888;margin-top:2px">Agent at 87% of limit. Will throttle in ~40 mins.</div></div><div class="gaapi">echostar-corporation-agent-v1</div><div class="gatime">Today 02:58</div><button class="gabtn" style="background:#f59e0b;color:#333">Adjust</button></div>
+            </div>
+            <div class="gnote"><b style="color:#333">Without Gravitee:</b> the scope violation at 14:35 would have succeeded silently — an agent accessing data it had no business touching, with no audit trail and no way to know it happened until something broke downstream.</div>
+          </div><!-- /gb-al -->
+
+          <!-- ═══ APIS SCREEN ═══ -->
+          <div class="gdb-tbody" id="gb-apis">
+            <div class="gdb-pg-title">APIs</div>
+            <div class="gdb-pg-sub">6 APIs · echostar-corporation-prod · All based on inferred public signals and job postings</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+              <button class="gfbtn">API Type ▾</button>
+              <button class="gfbtn">API Status ▾</button>
+              <button class="gfbtn">Categories ▾</button>
+              <button class="gfbtn">Portal Status ▾</button>
+              <button style="margin-left:auto;padding:5px 12px;background:#e8380d;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Manrope',sans-serif;">+ Add API</button>
+            </div>
+            <div class="gdb-tcard">
+              <table class="gtbl">
+                <thead><tr><th>Name</th><th>Type</th><th>Version</th><th>Status</th><th>Owner</th><th>Agent Consumers</th><th>Calls (7d)</th></tr></thead>
+                <tbody>
+<tr><td><b>/satellite-internet/usage</b><div style="font-size:10px;color:#888">Satellite Internet</div></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">v3.3.0</td><td><span class="gb gb-g">Published</span></td><td>Satellite Internet Team</td><td>1 agents</td><td style="font-family:'DM Mono',monospace">25000</td></tr>
+<tr><td><b>/satellite-tv/channel-listings</b><div style="font-size:10px;color:#888">Satellite TV</div></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">v1.0.5</td><td><span class="gb gb-g">Published</span></td><td>Satellite TV Team</td><td>5 agents</td><td style="font-family:'DM Mono',monospace">18000</td></tr>
+<tr><td><b>/mobile-satellite/location-data</b><div style="font-size:10px;color:#888">Mobile Satellite Services</div></td><td><span class="meth mk">Kafka</span></td><td style="font-family:'DM Mono',monospace">v3.6.7</td><td><span class="gb gb-g">Published</span></td><td>Mobile Satellite Services Team</td><td>7 agents</td><td style="font-family:'DM Mono',monospace">50000</td></tr>
+<tr><td><b>/enterprise-solutions/bandwidth-allocation</b><div style="font-size:10px;color:#888">Enterprise Solutions</div></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">v1.3.4</td><td><span class="gb gb-g">Published</span></td><td>Enterprise Solutions Team</td><td>9 agents</td><td style="font-family:'DM Mono',monospace">12000</td></tr>
+<tr><td><b>/satellite-tv/billing-info</b><div style="font-size:10px;color:#888">Satellite TV</div></td><td><span class="meth mg">REST</span></td><td style="font-family:'DM Mono',monospace">v2.4.5</td><td><span class="gb gb-g">Published</span></td><td>Satellite TV Team</td><td>12 agents</td><td style="font-family:'DM Mono',monospace">8000</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="text-align:center;padding:10px;font-size:11px;color:#888">Showing 10 of 47 APIs · <span style="color:#e8380d;cursor:pointer">View all →</span></div>
+          </div>
+
+          <!-- ═══ INTEGRATIONS SCREEN ═══ -->
+          <div class="gdb-tbody" id="gb-int">
+            <div class="gdb-pg-title">Integrations</div>
+            <div class="gdb-pg-sub">Third-party and internal system connections · echostar-corporation-prod</div>
+            <div class="gdb-g2" style="margin-bottom:12px">
+              <div class="gdb-card"><div class="gdb-ct">Integration Health</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px"><span style="color:#333">⬡ AWS (eu-west-1)</span><span class="gb gb-g">Connected</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px"><span style="color:#333">⚡ Confluent Kafka</span><span class="gb gb-g">Connected</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px"><span style="color:#333">☁ Kubernetes (EKS)</span><span class="gb gb-g">Connected</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px"><span style="color:#333">🏦 Confused.com PCW</span><span class="gb gb-g">Connected</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px"><span style="color:#333">📊 Snowflake Data Cloud</span><span class="gb gb-g">Connected</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px"><span style="color:#333">🛡 FCA Regulatory API</span><span class="gb gb-o">Latency ↑</span></div>
+                </div>
+              </div>
+              <div class="gdb-card"><div class="gdb-ct">MCP Server Registry</div>
+                <div class="gdb-n">12</div><div class="gdb-nl">MCP servers registered</div><div class="gdb-nc">↑ 4 onboarded this month</div>
+                <div style="height:6px"></div>
+                <div style="font-size:10px;color:#888;margin-bottom:6px">By type</div>
+                <div class="gdb-pr"><div class="gdb-pl">Internal APIs</div><div class="gdb-pb"><div class="gdb-pf" style="width:67%;background:#e8380d"></div></div><div class="gdb-pv">8</div></div>
+                <div class="gdb-pr"><div class="gdb-pl">3rd Party Data</div><div class="gdb-pb"><div class="gdb-pf" style="width:25%;background:#2563eb"></div></div><div class="gdb-pv">3</div></div>
+                <div class="gdb-pr"><div class="gdb-pl">AI/ML Services</div><div class="gdb-pb"><div class="gdb-pf" style="width:8%;background:#7c3aed"></div></div><div class="gdb-pv">1</div></div>
+              </div>
+            </div>
+            <div class="gdb-tcard">
+              <div class="gdb-thead"><div class="gdb-thtitle">Active Integrations</div><div class="gdb-tnav">1–8 of 23</div></div>
+              <table class="gtbl">
+                <thead><tr><th>Integration</th><th>Type</th><th>Protocol</th><th>Agent Access</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><b>AWS Bedrock</b><div style="font-size:10px;color:#888">LLM inference for GenAI CoE</div></td><td><span class="gb gb-purple" style="background:#ede9fe;color:#7c3aed">AI/ML</span></td><td><span class="meth mg">REST</span></td><td><span class="gb gb-g">Scoped</span></td><td><span class="sdot sg"></span>Live</td></tr>
+                  <tr><td><b>Snowflake Data Warehouse</b><div style="font-size:10px;color:#888">Claims + pricing analytics</div></td><td><span class="gb gb-b">DATA</span></td><td><span class="meth mg">REST</span></td><td><span class="gb gb-g">Scoped</span></td><td><span class="sdot sg"></span>Live</td></tr>
+                  <tr><td><b>Confused.com Real-Time Feed</b><div style="font-size:10px;color:#888">PCW pricing · Near-real-time</div></td><td><span class="gb gb-gr">PCW</span></td><td><span class="meth mg">REST</span></td><td><span class="gb gb-gr">Read-only</span></td><td><span class="sdot sg"></span>Live</td></tr>
+                  <tr><td><b>DVLA Vehicle Data API</b><div style="font-size:10px;color:#888">Registration lookup · MOT status</div></td><td><span class="gb gb-gr">GOV</span></td><td><span class="meth mg">REST</span></td><td><span class="gb gb-g">Scoped</span></td><td><span class="sdot sg"></span>Live</td></tr>
+                  <tr><td><b>Experian Credit Bureau</b><div style="font-size:10px;color:#888">Risk scoring · Fraud signals</div></td><td><span class="gb gb-gr">CREDIT</span></td><td><span class="meth mg">REST</span></td><td><span class="gb gb-r">Restricted</span></td><td><span class="sdot sg"></span>Live</td></tr>
+                  <tr><td><b>TomTom Traffic Data</b><div style="font-size:10px;color:#888">Telematics enrichment · Route risk</div></td><td><span class="gb gb-gr">GEO</span></td><td><span class="meth mg">REST</span></td><td><span class="gb gb-g">Scoped</span></td><td><span class="sdot sg"></span>Live</td></tr>
+                  <tr><td><b>FCA Regulatory Reporting</b><div style="font-size:10px;color:#888">Solvency II · Complaints data</div></td><td><span class="gb gb-gr">REG</span></td><td><span class="meth mg">REST</span></td><td><span class="gb gb-r">Restricted</span></td><td><span class="sdot so"></span>Latency ↑</td></tr>
+                  <tr><td><b>Guidewire ClaimCenter</b><div style="font-size:10px;color:#888">Claims management system</div></td><td><span class="gb gb-gr">CORE</span></td><td><span class="meth mp">REST</span></td><td><span class="gb gb-g">Scoped</span></td><td><span class="sdot sg"></span>Live</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ═══ APPLICATIONS SCREEN ═══ -->
+          <div class="gdb-tbody" id="gb-app">
+            <div class="gdb-pg-title">Applications</div>
+            <div class="gdb-pg-sub">153 agent applications · Scoped OAuth 2.1 identities · admiral-production-eu</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input type="text" placeholder="Search applications..." style="flex:1;padding:6px 10px;border:1px solid #ddd;border-radius:4px;font-size:12px;font-family:'Manrope',sans-serif">
+              <button class="gfbtn">Status ▾</button>
+              <button class="gfbtn">Team ▾</button>
+            </div>
+            <div class="gdb-tcard">
+              <div class="gdb-thead"><div class="gdb-thtitle">Agent Applications</div><div class="gdb-tnav">1–10 of 153</div></div>
+              <table class="gtbl">
+                <thead><tr><th>Application</th><th>Team</th><th>OAuth Scope</th><th>Rate Limit</th><th>Calls (7d)</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><b>pricing-optimisation-v4</b><div style="font-size:10px;color:#888">GenAI CoE · Production</div></td><td>Underwriting</td><td style="font-family:'DM Mono',monospace;font-size:10px">pricing:read pricing:quote</td><td>5k/min</td><td style="font-family:'DM Mono',monospace">3.2M</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>motor-quote-agent-v2</b><div style="font-size:10px;color:#888">GenAI CoE · Production</div></td><td>Pricing</td><td style="font-family:'DM Mono',monospace;font-size:10px">pricing:read underwriting:read</td><td>3k/min</td><td style="font-family:'DM Mono',monospace">2.1M</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>claims-triage-orchestrator</b><div style="font-size:10px;color:#888">GenAI CoE · Production</div></td><td>Claims</td><td style="font-family:'DM Mono',monospace;font-size:10px">claims:read claims:write fnol:write</td><td>2k/min</td><td style="font-family:'DM Mono',monospace">1.8M</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>customer-retention-ai</b><div style="font-size:10px;color:#888">GenAI CoE · Production</div></td><td>CX</td><td style="font-family:'DM Mono',monospace;font-size:10px">customer:read policy:read</td><td>1k/min</td><td style="font-family:'DM Mono',monospace">940K</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>fraud-detection-ensemble</b><div style="font-size:10px;color:#888">GenAI CoE · Production</div></td><td>Risk</td><td style="font-family:'DM Mono',monospace;font-size:10px">fraud:read customer:read</td><td>2k/min</td><td style="font-family:'DM Mono',monospace">441K</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr class="dng"><td><b style="color:#dc2626">claims-resolution-v2</b><div style="font-size:10px;color:#dc2626">⚠ Scope violation recorded</div></td><td>Claims</td><td style="font-family:'DM Mono',monospace;font-size:10px;color:#dc2626">claims:read claims:write</td><td>1k/min</td><td style="font-family:'DM Mono',monospace;color:#dc2626">1 (blocked)</td><td><span class="gb gb-r">Suspended</span></td></tr>
+                  <tr><td><b>telematics-scorer-v3</b><div style="font-size:10px;color:#888">Telematics · Production</div></td><td>Telematics</td><td style="font-family:'DM Mono',monospace;font-size:10px">telematics:read scoring:write</td><td>500/min</td><td style="font-family:'DM Mono',monospace">318K</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>littlebox-ingest-agent</b><div style="font-size:10px;color:#888">IoT · Black-box devices</div></td><td>Telematics</td><td style="font-family:'DM Mono',monospace;font-size:10px">telematics:write</td><td>10k/min</td><td style="font-family:'DM Mono',monospace">2.4M</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>renewal-propensity-model</b><div style="font-size:10px;color:#888">ML · Churn prediction</div></td><td>Data Science</td><td style="font-family:'DM Mono',monospace;font-size:10px">customer:read policy:read</td><td>500/min</td><td style="font-family:'DM Mono',monospace">178K</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>confused-pricing-sync</b><div style="font-size:10px;color:#888">PCW · Near-real-time feed</div></td><td>Compare</td><td style="font-family:'DM Mono',monospace;font-size:10px">pricing:read</td><td>100/min</td><td style="font-family:'DM Mono',monospace">98K</td><td><span class="gb gb-g">Active</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ═══ GATEWAYS SCREEN ═══ -->
+          <div class="gdb-tbody" id="gb-gw">
+            <div class="gdb-pg-title">Gateways</div>
+            <div class="gdb-pg-sub">3 gateway instances · EU-West-1 · Kubernetes (EKS) · Auto-scaled</div>
+            <div class="gdb-g3" style="margin-bottom:12px">
+              <div class="gdb-card">
+                <div class="gdb-ct">Gateway Health</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div class="sdot sg"></div><div style="font-size:13px;font-weight:600;color:#16a34a">All gateways operational</div></div>
+                <div class="gdb-n">3</div><div class="gdb-nl">Active instances</div>
+                <div style="height:4px"></div>
+                <div class="gdb-n">2.4<span style="font-size:14px">ms</span></div><div class="gdb-nl">Avg gateway latency</div>
+              </div>
+              <div class="gdb-card">
+                <div class="gdb-ct">Request Throughput</div>
+                <div class="gdb-n">94.2<span style="font-size:14px">K</span></div><div class="gdb-nl">Requests/min (current)</div><div class="gdb-nc">↑ 18% vs last week</div>
+                <div style="height:6px"></div>
+                <div style="font-size:10px;color:#888;margin-bottom:4px">Peak today: 142K req/min at 09:34</div>
+                <div style="font-size:10px;color:#888">Capacity: 500K req/min (18.8% utilised)</div>
+              </div>
+              <div class="gdb-card">
+                <div class="gdb-ct">Policy Enforcement</div>
+                <div style="display:flex;flex-direction:column;gap:6px;font-size:11px;margin-top:4px">
+                  <div style="display:flex;justify-content:space-between"><span style="color:#333">OAuth 2.1 enforcement</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#333">Rate limiting (per agent)</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#333">mTLS (service-to-service)</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#333">A2A scope delegation</span><span class="gb gb-b">Beta</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#333">FCA audit logging</span><span class="gb gb-g">Active</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="gdb-tcard">
+              <div class="gdb-thead"><div class="gdb-thtitle">Gateway Instances</div></div>
+              <table class="gtbl">
+                <thead><tr><th>Instance</th><th>Zone</th><th>Version</th><th>Uptime</th><th>Req/min</th><th>Latency (P99)</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><b>gateway-prod-eu-1</b><div style="font-size:10px;color:#888">Primary · EKS node group A</div></td><td>eu-west-1a</td><td style="font-family:'DM Mono',monospace">4.6.2</td><td style="color:#16a34a">99.97%</td><td style="font-family:'DM Mono',monospace">38.4K</td><td style="font-family:'DM Mono',monospace">1,240ms</td><td><span class="gb gb-g">Healthy</span></td></tr>
+                  <tr><td><b>gateway-prod-eu-2</b><div style="font-size:10px;color:#888">Primary · EKS node group B</div></td><td>eu-west-1b</td><td style="font-family:'DM Mono',monospace">4.6.2</td><td style="color:#16a34a">99.99%</td><td style="font-family:'DM Mono',monospace">32.1K</td><td style="font-family:'DM Mono',monospace">1,180ms</td><td><span class="gb gb-g">Healthy</span></td></tr>
+                  <tr><td><b>gateway-prod-eu-3</b><div style="font-size:10px;color:#888">Overflow · Auto-scaled</div></td><td>eu-west-1c</td><td style="font-family:'DM Mono',monospace">4.6.2</td><td style="color:#16a34a">99.94%</td><td style="font-family:'DM Mono',monospace">23.7K</td><td style="font-family:'DM Mono',monospace">1,420ms</td><td><span class="gb gb-g">Healthy</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ═══ KAFKA CLUSTERS SCREEN ═══ -->
+          <div class="gdb-tbody" id="gb-kfk">
+            <div class="gdb-pg-title">Kafka Clusters</div>
+            <div class="gdb-pg-sub">Confluent Cloud · 2 clusters · EU-West-1 · Event-driven AI pipelines</div>
+            <div class="gdb-g2" style="margin-bottom:12px">
+              <div class="gdb-card">
+                <div class="gdb-ct">Cluster Health</div>
+                <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;margin-top:4px">
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:#333"><b>admiral-core-events</b></span><span class="gb gb-g">Healthy</span></div>
+                  <div style="font-size:10px;color:#888;margin-top:-4px">14 topics · 284M msgs/day · 3 agent consumers</div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span style="color:#333"><b>admiral-ml-pipelines</b></span><span class="gb gb-g">Healthy</span></div>
+                  <div style="font-size:10px;color:#888;margin-top:-4px">8 topics · 91M msgs/day · 7 agent consumers</div>
+                </div>
+              </div>
+              <div class="gdb-card">
+                <div class="gdb-ct">Event Throughput (today)</div>
+                <div class="gdb-n">375<span style="font-size:14px">M</span></div><div class="gdb-nl">Messages processed</div><div class="gdb-nc">↑ 12% vs yesterday</div>
+                <div style="height:6px"></div>
+                <div style="font-size:10px;color:#888;margin-bottom:4px">Peak: 8.2M msgs/min at 09:41</div>
+                <div style="font-size:10px;color:#888">Consumer lag: <b style="color:#333">0ms</b> avg across agents</div>
+              </div>
+            </div>
+            <div class="gdb-tcard">
+              <div class="gdb-thead"><div class="gdb-thtitle">Kafka Topics · Agent-Governed via Gravitee</div><div class="gdb-tnav">1–8 of 22</div></div>
+              <table class="gtbl">
+                <thead><tr><th>Topic</th><th>Cluster</th><th>Partitions</th><th>Agent Consumers</th><th>Msgs/day</th><th>Retention</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><b>admiral.telematics.littlebox.raw</b><div style="font-size:10px;color:#888">LittleBox GPS + speed data</div></td><td>core-events</td><td>32</td><td>3 agents</td><td style="font-family:'DM Mono',monospace">84M</td><td>7 days</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>admiral.claims.fnol.intake</b><div style="font-size:10px;color:#888">First Notice of Loss events</div></td><td>core-events</td><td>16</td><td>4 agents</td><td style="font-family:'DM Mono',monospace">22M</td><td>30 days</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>admiral.pricing.quote.events</b><div style="font-size:10px;color:#888">Real-time quote generation</div></td><td>core-events</td><td>24</td><td>5 agents</td><td style="font-family:'DM Mono',monospace">67M</td><td>3 days</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>admiral.ml.underwriting.scores</b><div style="font-size:10px;color:#888">Risk score inference output</div></td><td>ml-pipelines</td><td>16</td><td>8 agents</td><td style="font-family:'DM Mono',monospace">41M</td><td>14 days</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>admiral.fraud.signals.realtime</b><div style="font-size:10px;color:#888">Fraud detection events</div></td><td>ml-pipelines</td><td>8</td><td>2 agents</td><td style="font-family:'DM Mono',monospace">18M</td><td>7 days</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>admiral.customer.profile.updates</b><div style="font-size:10px;color:#888">CRM change events</div></td><td>core-events</td><td>12</td><td>6 agents</td><td style="font-family:'DM Mono',monospace">31M</td><td>7 days</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>admiral.policy.renewal.triggers</b><div style="font-size:10px;color:#888">Renewal pipeline · Retention AI</div></td><td>core-events</td><td>8</td><td>3 agents</td><td style="font-family:'DM Mono',monospace">12M</td><td>14 days</td><td><span class="gb gb-g">Active</span></td></tr>
+                  <tr><td><b>admiral.confused.pricing.feed</b><div style="font-size:10px;color:#888">PCW price comparison stream</div></td><td>core-events</td><td>4</td><td>1 agent</td><td style="font-family:'DM Mono',monospace">5M</td><td>1 day</td><td><span class="gb gb-g">Active</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div><!-- /gb-kfk -->
+
+          <!-- ═══ SETTINGS SCREEN ═══ -->
+          <div class="gdb-tbody" id="gb-settings">
+            <div class="gdb-pg-title">Settings</div>
+            <div class="gdb-pg-sub">Environment configuration · admiral-production-eu</div>
+            <div class="gdb-g2" style="margin-bottom:12px">
+              <div class="gdb-card">
+                <div class="gdb-ct">Environment</div>
+                <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;margin-top:4px">
+                  <div style="display:flex;justify-content:space-between"><span style="color:#555">Name</span><span style="color:#333;font-weight:500">admiral-production-eu</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#555">Region</span><span style="color:#333">EU-West-1 (AWS)</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#555">Tier</span><span class="gb gb-p">Enterprise</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#555">Gravitee Version</span><span style="font-family:'DM Mono',monospace;color:#333">4.6.2</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#555">FCA Audit Logging</span><span class="gb gb-g">Enabled</span></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#555">A2A Delegation Policy</span><span class="gb gb-b">Beta</span></div>
+                </div>
+              </div>
+              <div class="gdb-card">
+                <div class="gdb-ct">Security Policies Active</div>
+                <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;margin-top:4px">
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span>OAuth 2.1 enforcement</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span>mTLS service mesh</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span>Rate limiting per agent</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span>Scope violation blocking</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span>FCA audit export</span><span class="gb gb-g">Active</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center"><span>A2A delegation limits</span><span class="gb gb-b">Configuring</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="gdb-card" style="margin-bottom:10px">
+              <div class="gdb-ct" style="margin-bottom:10px">Gateway Configuration</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:12px">
+                <div style="background:#fafafa;border:1px solid #e8e8e8;border-radius:4px;padding:10px">
+                  <div style="color:#888;font-size:10px;margin-bottom:4px">DEFAULT RATE LIMIT</div>
+                  <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#333">1,000<span style="font-size:11px;color:#888">/min</span></div>
+                  <div style="font-size:10px;color:#888">Per agent identity</div>
+                </div>
+                <div style="background:#fafafa;border:1px solid #e8e8e8;border-radius:4px;padding:10px">
+                  <div style="color:#888;font-size:10px;margin-bottom:4px">MAX DELEGATION DEPTH</div>
+                  <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#333">3<span style="font-size:11px;color:#888"> hops</span></div>
+                  <div style="font-size:10px;color:#888">A2A chain limit</div>
+                </div>
+                <div style="background:#fafafa;border:1px solid #e8e8e8;border-radius:4px;padding:10px">
+                  <div style="color:#888;font-size:10px;margin-bottom:4px">AUDIT RETENTION</div>
+                  <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#333">7<span style="font-size:11px;color:#888"> years</span></div>
+                  <div style="font-size:10px;color:#888">FCA requirement</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="eyebrow r">The solution</div>
+  <h2 class="sec-title r d1">One Control Plane Across<br>All Agent-API Traffic</h2>
+  <p class="sec-body r d2">Gravitee sits between Admiral's 150 GenAI initiatives and the microservices estate — adding governance that MCP and A2A don't provide natively.</p>
+  <div class="arch r">
+    <div class="arch-row rt"><div><div class="an">150 GenAI Initiatives</div><div class="as">MCP · A2A · REST · Events</div></div><div class="ad">Admiral's GenAI CoE initiatives, underwriting models, and agentic deployments connecting via standardised interfaces.</div><div class="ab ab-t">AGENT LAYER</div></div>
+    <div class="arch-row rr"><div><div class="an">Gravitee Control Plane</div><div class="as">Auth · Audit · Policy · Registry</div></div><div class="ad">Per-initiative OAuth scoping, FCA-ready audit logs, rate limiting for agent traffic, and A2A delegation policy — enforced at the gateway.</div><div class="ab ab-r">GOVERNANCE LAYER</div></div>
+    <div class="arch-row rd"><div><div class="an">Admiral Microservices</div><div class="as">Cloud-native · Kafka · APIs</div></div><div class="ad">Existing underwriting APIs, pricing models, customer data services, and Kafka event streams — untouched. No backend changes required.</div><div class="ab ab-d">UNCHANGED</div></div>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0">
+  <div class="eyebrow r">Why this feels familiar</div>
+  <h2 class="sec-title r d1">You've Solved This Before —<br>Just at a Different Scale</h2>
+  <p class="sec-body r d2">Your Just Eat experience maps directly to Admiral's current challenge. The new variable is that agents — not humans — are now the primary consumer of the API layer you're responsible for.</p>
+  <div class="parallel r">
+    <div class="pc"><div class="ph jet">Just Eat Takeaway</div><div class="pr jet">API-first architecture across hundreds of microservices</div><div class="pr jet">Kafka for event-driven streaming at scale</div><div class="pr jet">API governance as the connective tissue for hundreds of services</div><div class="pr jet">Driving AI-first adoption through API strategy</div></div>
+    <div class="pm"><div class="pa">→</div><div class="pa">→</div><div class="pa">→</div><div class="pa">→</div></div>
+    <div class="pc"><div class="ph adm">Admiral Group</div><div class="pr adm">Cloud-native microservices estate, 90%+ on cloud — same distributed complexity, insurance domain</div><div class="pr adm">Event-driven AI pipelines feeding 120+ ML models — Kafka still the substrate, now with agent consumers</div><div class="pr adm">150 GenAI initiatives all calling the same layer — same architecture problem, AI as the new consumer type</div><div class="pr adm">GenAI CoE scaling priority use cases — the platform this scales on is the API layer you now own</div></div>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0">
+  <div class="share-box r">
+    <div class="eyebrow" style="margin-bottom:12px">Forward this</div>
+    <div class="sh-title">Know the right person at EchoStar Corporation?</div>
+    <div class="sh-body">The API governance question cuts across multiple functions. Select the right people — we've pre-written a message, all you need to do is click send.</div>
+    <div class="sh-contacts">
+      <div class="sh-contact" onclick="tc(this)"><div class="sh-av">HA</div><div class="sh-info"><div class="sh-name">Hamid Akhavan</div><div class="sh-title">CEO and President</div></div><div class="sh-ck">+</div></div>
+      <div class="sh-contact" onclick="tc(this)"><div class="sh-av">PI</div><div class="sh-info"><div class="sh-name">Pradeep Iyer</div><div class="sh-title">EVP, Chief Technology & Product Officer</div></div><div class="sh-ck">+</div></div>
+      
+    </div>
+    <div class="sh-msg">"Hey — Gravitee put together something on API governance for Admiral's agent stack that I think lands on a real gap we have. With 150 GenAI initiatives calling our APIs, we have no central audit trail, no per-agent access scoping, and nothing catching privilege escalation. They've pre-populated a mock of what our estate looks like on their platform — including a scope violation caught and blocked this morning. Worth 10 minutes."</div>
+    <div id="sh-s1"><button class="btn-p" onclick="prepShare()">↗ Send to selected colleagues</button></div>
+    <div id="sh-s2">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:500">Queue — opens LinkedIn one at a time:</div>
+      <div id="sh-q"></div>
+      <div class="sh-btns"><button class="btn-p" id="sh-nb" onclick="sendNext()">↗ <span id="sh-nl">Open LinkedIn</span></button><button class="btn-g" onclick="resetShare()">Cancel</button></div>
+      <div class="sh-note">Each contact opens in a new tab. Message is copied to clipboard automatically — paste and send.</div>
+    </div>
+    <div class="sh-done" id="sh-done">✓ <span id="sh-dm">All contacts opened.</span></div>
+  </div>
+</div>
+
+<div class="closing">
+  <h2 class="r">Ready to Transform Your API Strategy?</h2>
+  <p class="r d1">Let's schedule a personalized demo to showcase how Gravitee can help EchoStar optimize API security, improve developer productivity, and unlock new business opportunities.</p>
+  <div class="closing-url r d2">gravitee.io</div>
+</div>
+
+<footer><span>GRAVITEE · CONFIDENTIAL · For Gregory Pandolfo, EchoStar Corporation · APRIL 2026</span><span>gravitee.io</span></footer>
+<div id="toast"></div>
+<script>
+'use strict';
+// PROGRESS
+window.addEventListener('scroll',()=>{document.getElementById('progress').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%'},{passive:true});
+// REVEAL
+const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.r').forEach(el=>ro.observe(el));
+setTimeout(()=>document.querySelectorAll('.hero .r').forEach(el=>el.classList.add('vis')),80);
+// COUNTERS
+const co=new IntersectionObserver(e=>e.forEach(x=>{
+  if(!x.isIntersecting)return;
+  const el=x.target,to=+el.dataset.to,dur=1500,s=performance.now();
+  const tick=n=>{const p=Math.min((n-s)/dur,1),e2=1-Math.pow(1-p,4);el.textContent=Math.floor(e2*to);if(p<1)requestAnimationFrame(tick);else el.textContent=to};
+  requestAnimationFrame(tick);co.unobserve(el);
+}),{threshold:.5});
+document.querySelectorAll('.counter').forEach(el=>co.observe(el));
+// FACTS
+const fv={};
+function vf(id,ok,btn){
+  const row=document.querySelector(`.fact-row[data-id="${id}"]`);
+  row.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');row.className='fact-row '+(ok?'ok':'no');fv[id]=ok;
+  const t=Object.keys(fv).length,g=Object.values(fv).filter(Boolean).length;
+  const sc=document.getElementById('fscore');sc.style.display='block';
+  document.getElementById('fscore-num').textContent=g+'/'+t;
+  toast(ok?'✓ Noted — glad the research checks out.':'↻ Thanks for the correction.');
+}
+// DASHBOARD TABS
+function gt(name, el) {
+  document.querySelectorAll('.gdb-tbody').forEach(function(b) {
+    b.classList.remove('on'); b.style.display = 'none';
+  });
+function gt(name, el) {
+  document.querySelectorAll('.gdb-tab').forEach(function(t) { t.classList.remove('on'); });
+  document.querySelectorAll('.gdb-ni').forEach(function(n) { n.classList.remove('on'); });
+  var body = document.getElementById('gb-' + name);
+  if (body) { body.classList.add('on'); body.style.display = 'block'; }
+  var topTab = document.getElementById('gtab-' + name);
+  if (topTab) topTab.classList.add('on');
+  if (el) {
+    var ni = el;
+    while (ni && !ni.classList.contains('gdb-ni')) { ni = ni.parentElement; }
+    if (ni) ni.classList.add('on');
+  }
+  var main = document.querySelector('.gdb-main');
+  if (main) main.scrollTop = 0;
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('[data-gt]').forEach(function(el) {
+    el.addEventListener('click', function() { gt(el.getAttribute('data-gt'), el); });
+  });
+});
+// CONTACT TOGGLE
+function tc(el){const cb=el.querySelector('.sh-ck');cb.classList.toggle('on');cb.textContent=cb.classList.contains('on')?'✓':'+';}
+// SHARE
+const CD={'Hamid Akhavan':{ url:'https://www.linkedin.com/in/hamid-akhavan-4496b9/', i:'HA', t:'CEO and President' },'Pradeep Iyer':{ url:'https://www.linkedin.com/in/pradeep-iyer-902a726/', i:'PI', t:'EVP, Chief Technology & Product Officer' }};
+const SM=`Hi Gregory, I thought you might be interested in this.  It's a quick overview of how Gravitee can help EchoStar manage its satellite APIs, especially around bandwidth optimisation and regulatory compliance, two areas I know are important.  Would you mind forwarding it to Pradeep Iyer or someone else on the technology team?`;
+let sq=[],si=0;
+function prepShare(){
+  sq=[];
+  document.querySelectorAll('.sh-contact').forEach(c=>{if(c.querySelector('.sh-ck.on')){const n=c.querySelector('.sh-name').textContent.trim();sq.push({name:n,...CD[n]})}});
+  if(!sq.length){toast('Select at least one colleague first.');return;}
+  si=0;document.getElementById('sh-s1').style.display='none';document.getElementById('sh-s2').style.display='block';
+  const qe=document.getElementById('sh-q');
+  qe.innerHTML=sq.map((c,i)=>`<div class="sh-qi" id="sqi${i}"><div class="sh-qi-av">${c.i}</div><div style="flex:1"><div class="sh-qi-name">${c.name}</div></div><div class="sh-qi-st" id="sqst${i}">Pending</div></div>`).join('');
+  updN();
+}
+function updN(){
+  if(si>=sq.length){document.getElementById('sh-s2').style.display='none';const d=document.getElementById('sh-done');d.style.display='flex';document.getElementById('sh-dm').textContent=`LinkedIn opened for all ${sq.length} contact${sq.length>1?'s':''}. Paste the message and send.`;return;}
+  document.getElementById('sh-nl').textContent=`Open LinkedIn for ${sq[si].name} (${si+1}/${sq.length})`;
+}
+function sendNext(){
+  if(si>=sq.length)return;const c=sq[si];
+  const st=document.getElementById(`sqst${si}`);if(st){st.textContent='✓ Opened';st.classList.add('sent');}
+  window.open(c.url,'_blank','noopener,noreferrer');
+  if(navigator.clipboard)navigator.clipboard.writeText(SM).then(()=>toast(`✓ Message copied — paste for ${c.name}`)).catch(()=>{});
+  si++;updN();
+}
+function resetShare(){si=0;sq=[];document.getElementById('sh-s1').style.display='block';document.getElementById('sh-s2').style.display='none';document.getElementById('sh-done').style.display='none';}
+window.hj && window.hj('identify', 'echostar-corporation', {});
+// TOAST
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+// CHARTS
+function initCharts(){
+  if(typeof Chart==='undefined'){setTimeout(initCharts,200);return;}
+  // Prevent Chart.js from ever triggering page resize
+  Chart.defaults.animation = false;
+  if(Chart.defaults.plugins && Chart.defaults.plugins.legend)
+    Chart.defaults.plugins.legend.display = false;
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  // Stat sparklines - responsive:false + fixed pixel sizes
+  function spark(id,data,color){
+    const el=document.getElementById(id);if(!el)return;
+    const w=el.parentElement.clientWidth||180;
+    el.width=w;el.height=34;
+    new Chart(el,{type:'line',data:{labels:days,datasets:[{data,borderColor:color,borderWidth:1.5,fill:true,backgroundColor:color.replace('#','').length===6?`rgba(${parseInt(color.slice(1,3),16)},${parseInt(color.slice(3,5),16)},${parseInt(color.slice(5,7),16)},0.08)`:color,tension:0.4,pointRadius:0}]},options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},animation:{duration:900}}});
+  }
+  // DB summary spark
+  // Explicitly size all dashboard canvases before Chart.js touches them
+  ['db-spark','db-callvol','db-donut','db-area'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.parentElement){
+      const pw=el.parentElement.clientWidth||300;
+      const ph=el.parentElement.clientHeight||100;
+      el.width=pw; el.height=ph;
+    }
+  });
+  const dbs=document.getElementById('db-spark');
+  if(dbs)new Chart(dbs,{type:'line',data:{labels:days,datasets:[{data:[1.8,2.1,2.3,2.0,2.4,2.6,2.9],borderColor:'#e8380d',borderWidth:1.5,fill:true,backgroundColor:'rgba(232,56,13,0.05)',tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{display:false}},animation:{duration:600}}});
+  // Call volume
+  const cv=document.getElementById('db-callvol');
+  if(cv)new Chart(cv,{type:'line',data:{labels:['Mar 14','Mar 15','Mar 16','Mar 17','Mar 18','Mar 19','Mar 20'],datasets:[{label:'Calls (M)',data:[5.2,5.8,6.1,5.9,6.4,7.1,7.4],borderColor:'#e8380d',borderWidth:2,backgroundColor:'rgba(232,56,13,0.05)',fill:true,tension:0.4,pointRadius:2,pointBackgroundColor:'#e8380d'},{label:'Violation',data:[null,null,null,null,null,null,.05],borderColor:'#dc2626',borderWidth:0,fill:false,pointRadius:[0,0,0,0,0,0,7],pointBackgroundColor:'#dc2626',pointStyle:'rectRot'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?` ${ctx.raw}M calls`:` Scope violation`}}},scales:{x:{grid:{color:'#f0f0f0'},ticks:{font:{size:9},color:'#888'}},y:{grid:{color:'#f0f0f0'},ticks:{font:{size:9},color:'#888',callback:v=>v+'M'},min:0}},animation:{duration:700}}});
+  // Donut
+  const dn=document.getElementById('db-donut');
+  if(dn)new Chart(dn,{type:'doughnut',data:{labels:['pricing-opt-v4','motor-quote-v2','claims-triage','customer-ret','fraud-detect','telematics','Other (147)'],datasets:[{data:[3.2,2.1,1.8,.94,.44,.32,1.1],backgroundColor:['#e8380d','#f97316','#fbbf24','#16a34a','#2563eb','#7c3aed','#d1d5db'],borderWidth:0,hoverOffset:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{font:{size:9},color:'#555',boxWidth:8,padding:5,generateLabels:c=>c.data.labels.map((l,i)=>({text:l.length>16?l.slice(0,16)+'…':l,fillStyle:c.data.datasets[0].backgroundColor[i],index:i}))}},tooltip:{callbacks:{label:ctx=>` ${ctx.raw}M calls`}}},animation:{duration:700}}});
+  // Area
+  const ar=document.getElementById('db-area');
+  if(ar)new Chart(ar,{type:'line',data:{labels:['Mar 14','Mar 15','Mar 16','Mar 17','Mar 18','Mar 19','Mar 20'],datasets:[{label:'2xx',data:[95.2,94.8,95.1,94.9,94.7,94.5,94.1],borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,0.1)',borderWidth:1.5,fill:true,tension:.4,pointRadius:2},{label:'4xx',data:[3.8,4,3.7,3.9,4,4.1,4.2],borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.07)',borderWidth:1.5,fill:true,tension:.4,pointRadius:2},{label:'5xx',data:[1,1.2,1.2,1.2,1.3,1.4,1.7],borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.07)',borderWidth:1.5,fill:true,tension:.4,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{font:{size:9},color:'#666',boxWidth:8,padding:5}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}%`}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#888'}},y:{grid:{color:'#f5f5f5'},ticks:{font:{size:9},color:'#888',callback:v=>v+'%'},min:0,max:100}},animation:{duration:800}}});
+}
+window.addEventListener('load',initCharts);
+
+// Ensure correct initial state
+(function() {
+  var all = document.querySelectorAll('.gdb-tbody');
+  all.forEach(function(b) { if(b.id !== 'gb-ov') b.style.display = 'none'; });
+  var ov = document.getElementById('gb-ov');
+  if (ov) { ov.style.display = 'block'; ov.classList.add('on'); }
+})();
+</script>
+</body>
+</html>
